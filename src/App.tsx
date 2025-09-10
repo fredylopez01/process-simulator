@@ -1,13 +1,18 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Scheduler } from "./simulator/Scheduler";
 import { FCFS } from "./simulator/algorithms/FCFS";
 import type { PCB } from "./simulator/models/PCB";
 import { SJF } from "./simulator/algorithms/SJF";
+import { RoundRobin } from "./simulator/algorithms/RoundRobin";
 import { FormNewProcess } from "./components";
+import { ProcessTable } from "./components/ProcessTable";
+import { ProcessControls } from "./components/ProcessControls";
 
 function App() {
   const [timec, setTimec] = useState(0);
-  const processes: PCB[] = [
+  const [algorithm, setAlgorithm] = useState("SJF");
+  const [quantum, setQuantum] = useState(2);
+  const [processes, setProcesses] = useState<PCB[]>([
     {
       id: 1,
       arrivalTime: 0,
@@ -16,62 +21,99 @@ function App() {
       turnaroundTime: 0,
       waitingTime: 0,
       priority: 2,
-      remainingTime: 0,
+      remainingTime: 6,
       state: "Created",
     },
-    {
-      id: 2,
-      arrivalTime: 2,
-      burstTime: 2,
-      completionTime: 0,
-      turnaroundTime: 0,
-      waitingTime: 0,
-      priority: 1,
-      remainingTime: 0,
-      state: "Created",
-    },
-    {
-      id: 3,
-      arrivalTime: 4,
-      burstTime: 8,
-      completionTime: 0,
-      turnaroundTime: 0,
-      waitingTime: 0,
-      priority: 3,
-      remainingTime: 0,
-      state: "Created",
-    },
-    {
-      id: 4,
-      arrivalTime: 6,
-      burstTime: 3,
-      completionTime: 0,
-      turnaroundTime: 0,
-      waitingTime: 0,
-      priority: 2,
-      remainingTime: 0,
-      state: "Created",
-    },
-  ];
+  ]);
+  const [running, setRunning] = useState(false);
 
-  processes.forEach((processes) => {
-    processes.remainingTime = processes.burstTime;
-  });
+  // Referencia al scheduler
+  const schedulerRef = useRef<Scheduler | null>(null);
 
-  const schedulerRef = useRef(new Scheduler(processes, new SJF(), setTimec));
+  // Actualiza el scheduler cuando cambian procesos o algoritmo
+  useEffect(() => {
+    let algoInstance;
+    if (algorithm === "FCFS") algoInstance = new FCFS();
+    else if (algorithm === "SJF") algoInstance = new SJF();
+    else algoInstance = new RoundRobin(quantum);
+    // Clonar procesos para evitar referencias
+    const cloned = processes.map((p) => ({ ...p }));
+    schedulerRef.current = new Scheduler(cloned, algoInstance, setTimec);
+    setRunning(false);
+    setTimec(0);
+  }, [algorithm, quantum, processes]);
 
-  const scheduler = schedulerRef.current;
+  // Agregar proceso
+  const addProcess = (process: Omit<PCB, "id" | "remainingTime" | "state">) => {
+    setProcesses((prev) => [
+      ...prev,
+      {
+        ...process,
+        id: prev.length ? Math.max(...prev.map((p) => p.id)) + 1 : 1,
+        remainingTime: process.burstTime,
+        state: "Created",
+      },
+    ]);
+  };
+
+  // Controladores de eventos
+  const handleStart = () => {
+    schedulerRef.current?.startClock();
+    setRunning(true);
+  };
+  const handlePause = () => {
+    schedulerRef.current?.pauseClock();
+    setRunning(false);
+  };
+  const handleResume = () => {
+    schedulerRef.current?.resumeClock();
+    setRunning(true);
+  };
+  const handleReset = () => {
+    schedulerRef.current?.resetClock();
+    setRunning(false);
+    setTimec(0);
+  };
 
   return (
-    <>
-      <FormNewProcess />
-      <button onClick={() => scheduler.startClock()}>Start</button>
-      <button onClick={() => scheduler.pauseClock()}>Pausar</button>
-      <button onClick={() => scheduler.resumeClock()}>Resume</button>
-      <button onClick={() => scheduler.resetClock()}>Reset</button>
-
-      <div>{timec}</div>
-    </>
+    <div style={{ maxWidth: 800, margin: "0 auto" }}>
+      <h2>Simulador de Planificación de Procesos</h2>
+      <FormNewProcess onAdd={addProcess} />
+      <div style={{ marginBottom: 10 }}>
+        <label>
+          Algoritmo:
+          <select
+            value={algorithm}
+            onChange={(e) => setAlgorithm(e.target.value)}
+          >
+            <option value="FCFS">FCFS</option>
+            <option value="SJF">SJF</option>
+            <option value="RR">Round Robin</option>
+          </select>
+        </label>
+        {algorithm === "RR" && (
+          <label style={{ marginLeft: 10 }}>
+            Quantum:
+            <input
+              type="number"
+              min={1}
+              value={quantum}
+              onChange={(e) => setQuantum(Number(e.target.value))}
+              style={{ width: 50, marginLeft: 5 }}
+            />
+          </label>
+        )}
+      </div>
+      <ProcessControls
+        onStart={handleStart}
+        onPause={handlePause}
+        onResume={handleResume}
+        onReset={handleReset}
+        running={running}
+      />
+      <div>Tiempo actual: {timec}</div>
+      <ProcessTable processes={processes} />
+    </div>
   );
 }
 

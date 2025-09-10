@@ -1,6 +1,7 @@
 import { Clock } from "./Clock";
 import type { PCB } from "./models/PCB";
 import type { ScheduleNextProcess } from "./algorithms/ScheduleNextProcess";
+import { RoundRobin } from "./algorithms/RoundRobin";
 
 export type TickCallback = (currentTime: number) => void;
 
@@ -11,6 +12,7 @@ export class Scheduler {
   private waitingQueue: PCB[];
   private terminatedQueue: PCB[];
   private scheduleNextProcess: ScheduleNextProcess;
+  private quantumCounter: number = 0;
   private onTick: TickCallback;
   private clock: Clock;
 
@@ -29,6 +31,7 @@ export class Scheduler {
     this.clock = new Clock((time) => {
       this.executeSimulation(time);
     });
+    this.quantumCounter = 0;
   }
 
   setScheduleNextProcess(algorithm: ScheduleNextProcess) {
@@ -36,21 +39,39 @@ export class Scheduler {
   }
 
   executeSimulation(time: number) {
-    console.log(time);
     this.updateReadyQueue(time);
 
+    // Si no hay proceso en CPU, tomar uno nuevo
     if (!this.cpuProcess) {
       this.updateCpuProcess();
-    } else {
+      this.quantumCounter = 0;
+    }
+
+    if (this.cpuProcess) {
       this.cpuProcess.remainingTime--;
+      this.quantumCounter++;
+
+      // Si terminó el proceso
       if (this.cpuProcess.remainingTime === 0) {
         this.cpuProcess.completionTime = time;
         this.terminatedQueue.push(this.cpuProcess);
+        this.cpuProcess = null;
+        this.quantumCounter = 0;
+        this.updateCpuProcess();
+      } else if (
+        this.scheduleNextProcess instanceof RoundRobin &&
+        this.quantumCounter >=
+          (this.scheduleNextProcess as RoundRobin).getQuantum()
+      ) {
+        // Quantum agotado, cambio de proceso (solo RR)
+        this.readyQueue.push(this.cpuProcess);
+        this.cpuProcess = null;
+        this.quantumCounter = 0;
         this.updateCpuProcess();
       }
-      this.isTerminated();
     }
 
+    this.isTerminated();
     this.onTick(time);
   }
 
