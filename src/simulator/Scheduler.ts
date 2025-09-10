@@ -1,7 +1,6 @@
-import { FCFS } from "./algorithms/FCFS";
-import type { ScheduleNextProcess } from "./algorithms/scheduleNextProcess";
 import { Clock } from "./Clock";
 import type { PCB } from "./models/PCB";
+import type { ScheduleNextProcess } from "./algorithms/ScheduleNextProcess";
 
 export type TickCallback = (currentTime: number) => void;
 
@@ -28,7 +27,7 @@ export class Scheduler {
     this.scheduleNextProcess = algorithm;
     this.onTick = onTime;
     this.clock = new Clock((time) => {
-      this.update(time);
+      this.executeSimulation(time);
     });
   }
 
@@ -36,16 +35,63 @@ export class Scheduler {
     this.scheduleNextProcess = algorithm;
   }
 
-  initReadyQueue(createdProcess: PCB[]) {
-    this.readyQueue = [...this.readyQueue, ...createdProcess];
-  }
-
-  update(time: number) {
+  executeSimulation(time: number) {
     console.log(time);
+    this.updateReadyQueue(time);
+
+    if (!this.cpuProcess) {
+      this.updateCpuProcess();
+    } else {
+      this.cpuProcess.remainingTime--;
+      if (this.cpuProcess.remainingTime === 0) {
+        this.cpuProcess.completionTime = time;
+        this.terminatedQueue.push(this.cpuProcess);
+        this.updateCpuProcess();
+      }
+      this.isTerminated();
+    }
+
     this.onTick(time);
   }
 
-  public startSimulation() {}
+  updateReadyQueue(time: number) {
+    this.createdQueue = this.createdQueue.filter((process) => {
+      if (process.arrivalTime === time) {
+        this.readyQueue.push(process);
+        return false;
+      }
+      return true;
+    });
+  }
+
+  updateCpuProcess() {
+    this.cpuProcess = this.scheduleNextProcess.getNextProcess(this.readyQueue);
+    if (this.cpuProcess) {
+      this.readyQueue = this.readyQueue.filter(
+        (p) => p.id !== this.cpuProcess!.id
+      );
+    }
+  }
+
+  isTerminated() {
+    if (
+      this.createdQueue.length === 0 &&
+      this.readyQueue.length === 0 &&
+      !this.cpuProcess
+    ) {
+      console.log("Terminado");
+      this.clock.pause();
+      this.finalCalculation();
+      console.log(this.terminatedQueue);
+    }
+  }
+
+  finalCalculation() {
+    this.terminatedQueue.forEach((process) => {
+      process.turnaroundTime = process.completionTime - process.arrivalTime;
+      process.waitingTime = process.turnaroundTime - process.burstTime;
+    });
+  }
 
   public startClock = () => {
     this.clock.start();
