@@ -7,6 +7,7 @@ import { RoundRobin } from "./simulator/algorithms/RoundRobin";
 import { FormNewProcess } from "./components";
 import { ProcessTable } from "./components/ProcessTable";
 import { ProcessControls } from "./components/ProcessControls";
+import { SimulationResults } from "./components/SimulationResults";
 
 function App() {
   const [timec, setTimec] = useState(0);
@@ -38,7 +39,14 @@ function App() {
     else algoInstance = new RoundRobin(quantum);
     // Clonar procesos para evitar referencias
     const cloned = processes.map((p) => ({ ...p }));
-    schedulerRef.current = new Scheduler(cloned, algoInstance, setTimec);
+    schedulerRef.current = new Scheduler(
+      cloned,
+      algoInstance,
+      setTimec,
+      (finalProcesses) => {
+        setProcesses(finalProcesses.map((p) => ({ ...p })));
+      }
+    );
     setRunning(false);
     setTimec(0);
   }, [algorithm, quantum, processes]);
@@ -113,6 +121,7 @@ function App() {
       />
       <div>Tiempo actual: {timec}</div>
       <ProcessTable processes={processes} />
+      <SimulationResults processes={processes} />
     </div>
   );
 }

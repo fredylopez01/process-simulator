@@ -15,11 +15,13 @@ export class Scheduler {
   private quantumCounter: number = 0;
   private onTick: TickCallback;
   private clock: Clock;
+  private onFinish?: (all: PCB[]) => void;
 
   constructor(
     createdQueue: PCB[],
     algorithm: ScheduleNextProcess,
-    onTime: TickCallback
+    onTime: TickCallback,
+    onFinish?: (all: PCB[]) => void
   ) {
     this.createdQueue = createdQueue;
     this.readyQueue = [];
@@ -28,6 +30,7 @@ export class Scheduler {
     this.terminatedQueue = [];
     this.scheduleNextProcess = algorithm;
     this.onTick = onTime;
+    this.onFinish = onFinish;
     this.clock = new Clock((time) => {
       this.executeSimulation(time);
     });
@@ -57,18 +60,22 @@ export class Scheduler {
         this.terminatedQueue.push(this.cpuProcess);
         this.cpuProcess = null;
         this.quantumCounter = 0;
-        this.updateCpuProcess();
       } else if (
         this.scheduleNextProcess instanceof RoundRobin &&
         this.quantumCounter >=
-          (this.scheduleNextProcess as RoundRobin).getQuantum()
+          (this.scheduleNextProcess as RoundRobin).getQuantum() &&
+        this.readyQueue.length > 0 // Solo hacer cambio si hay otros procesos listos
       ) {
         // Quantum agotado, cambio de proceso (solo RR)
         this.readyQueue.push(this.cpuProcess);
         this.cpuProcess = null;
         this.quantumCounter = 0;
-        this.updateCpuProcess();
       }
+    }
+
+    // Si el proceso en CPU terminó o fue cambiado, tomar el siguiente
+    if (!this.cpuProcess && this.readyQueue.length > 0) {
+      this.updateCpuProcess();
     }
 
     this.isTerminated();
@@ -86,12 +93,15 @@ export class Scheduler {
   }
 
   updateCpuProcess() {
-    this.cpuProcess = this.scheduleNextProcess.getNextProcess(this.readyQueue);
-    if (this.cpuProcess) {
-      this.readyQueue = this.readyQueue.filter(
-        (p) => p.id !== this.cpuProcess!.id
-      );
+    if (this.readyQueue.length === 0) {
+      this.cpuProcess = null;
+      return;
     }
+    this.cpuProcess = this.scheduleNextProcess.getNextProcess(this.readyQueue);
+    // Eliminar el proceso seleccionado de la cola de listos
+    this.readyQueue = this.readyQueue.filter(
+      (p) => p.id !== this.cpuProcess!.id
+    );
   }
 
   isTerminated() {
@@ -100,10 +110,18 @@ export class Scheduler {
       this.readyQueue.length === 0 &&
       !this.cpuProcess
     ) {
-      console.log("Terminado");
       this.clock.pause();
       this.finalCalculation();
-      console.log(this.terminatedQueue);
+      // Notificar a React con el estado final de todos los procesos
+      if (this.onFinish) {
+        // Unir terminados + los que nunca llegaron a ejecutarse
+        const all = [
+          ...this.terminatedQueue,
+          ...this.createdQueue,
+          ...this.readyQueue,
+        ];
+        this.onFinish(all);
+      }
     }
   }
 
