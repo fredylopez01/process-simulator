@@ -11,21 +11,55 @@ import { SimulationResults } from "./components/SimulationResults";
 
 function App() {
   const [timec, setTimec] = useState(0);
-  const [algorithm, setAlgorithm] = useState("SJF");
+  const [algorithm, setAlgorithm] = useState("RR");
   const [quantum, setQuantum] = useState(2);
   const [processes, setProcesses] = useState<PCB[]>([
     {
       id: 1,
       arrivalTime: 0,
+      burstTime: 5,
+      completionTime: 0,
+      turnaroundTime: 0,
+      waitingTime: 0,
+      priority: 1,
+      remainingTime: 5,
+      state: "Created",
+    },
+    {
+      id: 2,
+      arrivalTime: 1,
+      burstTime: 2,
+      completionTime: 0,
+      turnaroundTime: 0,
+      waitingTime: 0,
+      priority: 1,
+      remainingTime: 2,
+      state: "Created",
+    },
+    {
+      id: 3,
+      arrivalTime: 2,
+      burstTime: 8,
+      completionTime: 0,
+      turnaroundTime: 0,
+      waitingTime: 0,
+      priority: 1,
+      remainingTime: 8,
+      state: "Created",
+    },
+    {
+      id: 4,
+      arrivalTime: 3,
       burstTime: 6,
       completionTime: 0,
       turnaroundTime: 0,
       waitingTime: 0,
-      priority: 2,
+      priority: 1,
       remainingTime: 6,
       state: "Created",
     },
   ]);
+  const [finalProcesses, setFinalProcesses] = useState<PCB[]>([]);
   const [running, setRunning] = useState(false);
 
   // Referencia al scheduler
@@ -43,8 +77,8 @@ function App() {
       cloned,
       algoInstance,
       setTimec,
-      (finalProcesses) => {
-        setProcesses(finalProcesses.map((p) => ({ ...p })));
+      (endedProcesses) => {
+        setFinalProcesses(endedProcesses.map((p) => ({ ...p })));
       }
     );
     setRunning(false);
@@ -121,7 +155,7 @@ function App() {
       />
       <div>Tiempo actual: {timec}</div>
       <ProcessTable processes={processes} />
-      <SimulationResults processes={processes} />
+      <SimulationResults processes={finalProcesses} />
     </div>
   );
 }

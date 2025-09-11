@@ -48,37 +48,29 @@ export class Scheduler {
     if (!this.cpuProcess) {
       this.updateCpuProcess();
       this.quantumCounter = 0;
-    }
-
-    if (this.cpuProcess) {
+    } else {
       this.cpuProcess.remainingTime--;
       this.quantumCounter++;
+      console.log(
+        `${time}: proceso ${this.cpuProcess.id}, tiempo restante: ${this.cpuProcess.remainingTime}`
+      );
 
       // Si terminó el proceso
       if (this.cpuProcess.remainingTime === 0) {
-        this.cpuProcess.completionTime = time;
-        this.terminatedQueue.push(this.cpuProcess);
-        this.cpuProcess = null;
-        this.quantumCounter = 0;
-      } else if (
-        this.scheduleNextProcess instanceof RoundRobin &&
-        this.quantumCounter >=
-          (this.scheduleNextProcess as RoundRobin).getQuantum() &&
-        this.readyQueue.length > 0 // Solo hacer cambio si hay otros procesos listos
-      ) {
-        // Quantum agotado, cambio de proceso (solo RR)
-        this.readyQueue.push(this.cpuProcess);
-        this.cpuProcess = null;
-        this.quantumCounter = 0;
+        this.processTerminated(time);
+      } else {
+        // Si se agotó el quantum (solo para Round Robin)
+        this.isQuantumEnded();
       }
     }
 
     // Si el proceso en CPU terminó o fue cambiado, tomar el siguiente
     if (!this.cpuProcess && this.readyQueue.length > 0) {
       this.updateCpuProcess();
+      this.quantumCounter = 0;
     }
 
-    this.isTerminated();
+    this.isSimulationTerminated();
     this.onTick(time);
   }
 
@@ -104,7 +96,7 @@ export class Scheduler {
     );
   }
 
-  isTerminated() {
+  isSimulationTerminated() {
     if (
       this.createdQueue.length === 0 &&
       this.readyQueue.length === 0 &&
@@ -130,6 +122,27 @@ export class Scheduler {
       process.turnaroundTime = process.completionTime - process.arrivalTime;
       process.waitingTime = process.turnaroundTime - process.burstTime;
     });
+  }
+
+  processTerminated(currentTime: number) {
+    this.cpuProcess!.completionTime = currentTime;
+    this.terminatedQueue.push(this.cpuProcess!);
+    this.cpuProcess = null;
+    this.quantumCounter = 0;
+  }
+
+  isQuantumEnded() {
+    if (
+      this.scheduleNextProcess instanceof RoundRobin &&
+      this.quantumCounter >=
+        (this.scheduleNextProcess as RoundRobin).getQuantum() &&
+      this.readyQueue.length > 0 // Solo hacer cambio si hay otros procesos listos
+    ) {
+      // Quantum agotado, cambio de proceso
+      this.readyQueue.push(this.cpuProcess!);
+      this.cpuProcess = null;
+      this.quantumCounter = 0;
+    }
   }
 
   public startClock = () => {

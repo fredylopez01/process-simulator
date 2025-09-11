@@ -3,11 +3,9 @@ import type { ScheduleNextProcess } from "./ScheduleNextProcess";
 
 export class RoundRobin implements ScheduleNextProcess {
   private quantum: number;
-  private lastIndex: number;
 
   constructor(quantum: number) {
     this.quantum = quantum;
-    this.lastIndex = 0;
   }
 
   getNextProcess(processes: PCB[]): PCB {
@@ -25,11 +23,7 @@ export class RoundRobin implements ScheduleNextProcess {
         state: "Created",
       };
     }
-    if (this.lastIndex >= processes.length) {
-      this.lastIndex = 0;
-    }
-    const next = processes[this.lastIndex];
-    this.lastIndex = (this.lastIndex + 1) % processes.length;
+    const next = processes[0];
     return next;
   }
 
