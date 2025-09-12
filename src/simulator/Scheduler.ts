@@ -1,9 +1,6 @@
-import { Clock } from "./Clock";
 import type { PCB } from "./models/PCB";
 import type { ScheduleNextProcess } from "./algorithms/ScheduleNextProcess";
 import { RoundRobin } from "./algorithms/RoundRobin";
-
-export type TickCallback = (currentTime: number) => void;
 
 export class Scheduler {
   private createdQueue: PCB[];
@@ -13,15 +10,12 @@ export class Scheduler {
   private terminatedQueue: PCB[];
   private scheduleNextProcess: ScheduleNextProcess;
   private quantumCounter: number = 0;
-  private onTick: TickCallback;
-  private clock: Clock;
   private onFinish?: (all: PCB[]) => void;
 
   constructor(
     createdQueue: PCB[],
     algorithm: ScheduleNextProcess,
-    onTime: TickCallback,
-    onFinish?: (all: PCB[]) => void
+    onFinish: (all: PCB[]) => void
   ) {
     this.createdQueue = createdQueue;
     this.readyQueue = [];
@@ -29,11 +23,7 @@ export class Scheduler {
     this.waitingQueue = [];
     this.terminatedQueue = [];
     this.scheduleNextProcess = algorithm;
-    this.onTick = onTime;
     this.onFinish = onFinish;
-    this.clock = new Clock((time) => {
-      this.executeSimulation(time);
-    });
     this.quantumCounter = 0;
   }
 
@@ -71,10 +61,13 @@ export class Scheduler {
     }
 
     this.isSimulationTerminated();
-    this.onTick(time);
   }
 
   updateReadyQueue(time: number) {
+    if (this.waitingQueue.length >= 0) {
+      this.readyQueue = [...this.readyQueue, ...this.waitingQueue];
+      this.waitingQueue = [];
+    }
     this.createdQueue = this.createdQueue.filter((process) => {
       if (process.arrivalTime === time) {
         this.readyQueue.push(process);
@@ -102,18 +95,14 @@ export class Scheduler {
       this.readyQueue.length === 0 &&
       !this.cpuProcess
     ) {
-      this.clock.pause();
       this.finalCalculation();
       // Notificar a React con el estado final de todos los procesos
-      if (this.onFinish) {
-        // Unir terminados + los que nunca llegaron a ejecutarse
-        const all = [
-          ...this.terminatedQueue,
-          ...this.createdQueue,
-          ...this.readyQueue,
-        ];
-        this.onFinish(all);
-      }
+      const all = [
+        ...this.terminatedQueue,
+        ...this.createdQueue,
+        ...this.readyQueue,
+      ];
+      this.onFinish!(all);
     }
   }
 
@@ -139,25 +128,9 @@ export class Scheduler {
       this.readyQueue.length > 0 // Solo hacer cambio si hay otros procesos listos
     ) {
       // Quantum agotado, cambio de proceso
-      this.readyQueue.push(this.cpuProcess!);
+      this.waitingQueue.push(this.cpuProcess!);
       this.cpuProcess = null;
       this.quantumCounter = 0;
     }
   }
-
-  public startClock = () => {
-    this.clock.start();
-  };
-
-  public pauseClock = () => {
-    this.clock.pause();
-  };
-
-  public resumeClock = () => {
-    this.clock.start();
-  };
-
-  public resetClock = () => {
-    this.clock.reset();
-  };
 }

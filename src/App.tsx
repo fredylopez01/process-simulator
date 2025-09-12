@@ -8,11 +8,13 @@ import { FormNewProcess } from "./components";
 import { ProcessTable } from "./components/ProcessTable";
 import { ProcessControls } from "./components/ProcessControls";
 import { SimulationResults } from "./components/SimulationResults";
+import { Clock } from "./simulator/Clock";
 
 function App() {
   const [timec, setTimec] = useState(0);
   const [algorithm, setAlgorithm] = useState("RR");
-  const [quantum, setQuantum] = useState(2);
+  const [quantum, setQuantum] = useState(4);
+  const [intervelMs, setIntervalMs] = useState(500);
   const [processes, setProcesses] = useState<PCB[]>([
     {
       id: 1,
@@ -76,9 +78,9 @@ function App() {
     schedulerRef.current = new Scheduler(
       cloned,
       algoInstance,
-      setTimec,
       (endedProcesses) => {
         setFinalProcesses(endedProcesses.map((p) => ({ ...p })));
+        handlePause();
       }
     );
     setRunning(false);
@@ -98,21 +100,31 @@ function App() {
     ]);
   };
 
-  // Controladores de eventos
+  // clock
+  const clockRef = useRef<Clock | null>(null);
+
+  useEffect(() => {
+    clockRef.current = new Clock((time) => {
+      schedulerRef.current?.executeSimulation(time);
+      setTimec(time);
+    }, intervelMs);
+  }, [intervelMs]);
+
+  // controles
   const handleStart = () => {
-    schedulerRef.current?.startClock();
+    clockRef.current?.start();
     setRunning(true);
   };
   const handlePause = () => {
-    schedulerRef.current?.pauseClock();
+    clockRef.current?.pause();
     setRunning(false);
   };
   const handleResume = () => {
-    schedulerRef.current?.resumeClock();
+    clockRef.current?.resume();
     setRunning(true);
   };
   const handleReset = () => {
-    schedulerRef.current?.resetClock();
+    clockRef.current?.reset();
     setRunning(false);
     setTimec(0);
   };
@@ -145,6 +157,19 @@ function App() {
             />
           </label>
         )}
+        <label style={{ marginLeft: 10 }}>
+          Intervalo (ms):
+          <input
+            type="number"
+            min={100}
+            value={intervelMs}
+            onChange={(e) => setIntervalMs(Number(e.target.value))}
+            onBlur={() => {
+              if (intervelMs < 100) setIntervalMs(100);
+            }}
+            style={{ width: 70, marginLeft: 5 }}
+          />
+        </label>
       </div>
       <ProcessControls
         onStart={handleStart}
