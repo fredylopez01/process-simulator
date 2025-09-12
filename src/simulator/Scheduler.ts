@@ -5,12 +5,12 @@ import { RoundRobin } from "./algorithms/RoundRobin";
 export class Scheduler {
   private createdQueue: PCB[];
   private readyQueue: PCB[];
-  private cpuProcess: PCB | null;
   private waitingQueue: PCB[];
   private terminatedQueue: PCB[];
+  private cpuProcess: PCB | null;
   private scheduleNextProcess: ScheduleNextProcess;
-  private quantumCounter: number = 0;
-  private onFinish?: (all: PCB[]) => void;
+  private quantumCounter = 0;
+  private onFinish: (all: PCB[]) => void;
 
   constructor(
     createdQueue: PCB[],
@@ -19,55 +19,34 @@ export class Scheduler {
   ) {
     this.createdQueue = createdQueue;
     this.readyQueue = [];
-    this.cpuProcess = null;
     this.waitingQueue = [];
     this.terminatedQueue = [];
+    this.cpuProcess = null;
     this.scheduleNextProcess = algorithm;
     this.onFinish = onFinish;
-    this.quantumCounter = 0;
   }
 
-  setScheduleNextProcess(algorithm: ScheduleNextProcess) {
-    this.scheduleNextProcess = algorithm;
-  }
+  /** Avanza un tick de simulación */
+  public tick(time: number) {
+    this.moveArrivalsToReady(time);
+    if (time === 0) return;
+    this.dispatchIfNeeded();
 
-  executeSimulation(time: number) {
-    this.updateReadyQueue(time);
-
-    // Si no hay proceso en CPU, tomar uno nuevo
-    if (!this.cpuProcess) {
-      this.updateCpuProcess();
-      this.quantumCounter = 0;
-    } else {
-      this.cpuProcess.remainingTime--;
-      this.quantumCounter++;
-      console.log(
-        `${time}: proceso ${this.cpuProcess.id}, tiempo restante: ${this.cpuProcess.remainingTime}`
-      );
-
-      // Si terminó el proceso
-      if (this.cpuProcess.remainingTime === 0) {
-        this.processTerminated(time);
-      } else {
-        // Si se agotó el quantum (solo para Round Robin)
-        this.isQuantumEnded();
-      }
+    if (this.cpuProcess) {
+      this.runCpuProcess(time);
     }
 
-    // Si el proceso en CPU terminó o fue cambiado, tomar el siguiente
-    if (!this.cpuProcess && this.readyQueue.length > 0) {
-      this.updateCpuProcess();
-      this.quantumCounter = 0;
-    }
-
-    this.isSimulationTerminated();
+    this.dispatchIfNeeded();
+    this.checkIfFinished();
   }
 
-  updateReadyQueue(time: number) {
-    if (this.waitingQueue.length >= 0) {
-      this.readyQueue = [...this.readyQueue, ...this.waitingQueue];
+  /** Mueve procesos que ya llegaron a la cola de listos */
+  private moveArrivalsToReady(time: number) {
+    if (this.waitingQueue.length > 0) {
+      this.readyQueue.push(...this.waitingQueue);
       this.waitingQueue = [];
     }
+
     this.createdQueue = this.createdQueue.filter((process) => {
       if (process.arrivalTime === time) {
         this.readyQueue.push(process);
@@ -77,60 +56,81 @@ export class Scheduler {
     });
   }
 
-  updateCpuProcess() {
-    if (this.readyQueue.length === 0) {
-      this.cpuProcess = null;
-      return;
+  /** Asigna un proceso a la CPU si está libre */
+  private dispatchIfNeeded() {
+    if (!this.cpuProcess && this.readyQueue.length > 0) {
+      this.cpuProcess = this.scheduleNextProcess.getNextProcess(
+        this.readyQueue
+      );
+      this.readyQueue = this.readyQueue.filter(
+        (p) => p.id !== this.cpuProcess!.id
+      );
+      this.quantumCounter = 0;
     }
-    this.cpuProcess = this.scheduleNextProcess.getNextProcess(this.readyQueue);
-    // Eliminar el proceso seleccionado de la cola de listos
-    this.readyQueue = this.readyQueue.filter(
-      (p) => p.id !== this.cpuProcess!.id
+  }
+
+  /** Ejecuta un ciclo de CPU */
+  private runCpuProcess(time: number) {
+    if (!this.cpuProcess) return;
+
+    this.cpuProcess.remainingTime--;
+    this.quantumCounter++;
+
+    console.log(
+      `${time}: proceso ${this.cpuProcess.id}, restante: ${this.cpuProcess.remainingTime}`
+    );
+
+    if (this.cpuProcess.remainingTime <= 0) {
+      this.finishProcess(time);
+    } else if (this.shouldPreempt()) {
+      this.preemptProcess();
+    }
+  }
+
+  /** Marca un proceso como terminado */
+  private finishProcess(currentTime: number) {
+    if (!this.cpuProcess) return;
+    this.cpuProcess.completionTime = currentTime;
+    this.terminatedQueue.push(this.cpuProcess);
+    this.cpuProcess = null;
+    this.quantumCounter = 0;
+  }
+
+  /** Verifica si debe hacerse cambio de contexto por Round Robin */
+  private shouldPreempt(): boolean {
+    return (
+      this.scheduleNextProcess instanceof RoundRobin &&
+      this.quantumCounter >=
+        (this.scheduleNextProcess as RoundRobin).getQuantum() &&
+      this.readyQueue.length > 0
     );
   }
 
-  isSimulationTerminated() {
+  /** Saca al proceso de CPU y lo pasa a espera */
+  private preemptProcess() {
+    if (!this.cpuProcess) return;
+    this.waitingQueue.push(this.cpuProcess);
+    this.cpuProcess = null;
+    this.quantumCounter = 0;
+  }
+
+  /** Verifica si la simulación terminó */
+  private checkIfFinished() {
     if (
       this.createdQueue.length === 0 &&
       this.readyQueue.length === 0 &&
       !this.cpuProcess
     ) {
-      this.finalCalculation();
-      // Notificar a React con el estado final de todos los procesos
-      const all = [
-        ...this.terminatedQueue,
-        ...this.createdQueue,
-        ...this.readyQueue,
-      ];
-      this.onFinish!(all);
+      this.calculateMetrics();
+      this.onFinish(this.terminatedQueue);
     }
   }
 
-  finalCalculation() {
-    this.terminatedQueue.forEach((process) => {
-      process.turnaroundTime = process.completionTime - process.arrivalTime;
-      process.waitingTime = process.turnaroundTime - process.burstTime;
+  /** Calcula métricas de turnaround y waiting time */
+  private calculateMetrics() {
+    this.terminatedQueue.forEach((p) => {
+      p.turnaroundTime = p.completionTime - p.arrivalTime;
+      p.waitingTime = p.turnaroundTime - p.burstTime;
     });
-  }
-
-  processTerminated(currentTime: number) {
-    this.cpuProcess!.completionTime = currentTime;
-    this.terminatedQueue.push(this.cpuProcess!);
-    this.cpuProcess = null;
-    this.quantumCounter = 0;
-  }
-
-  isQuantumEnded() {
-    if (
-      this.scheduleNextProcess instanceof RoundRobin &&
-      this.quantumCounter >=
-        (this.scheduleNextProcess as RoundRobin).getQuantum() &&
-      this.readyQueue.length > 0 // Solo hacer cambio si hay otros procesos listos
-    ) {
-      // Quantum agotado, cambio de proceso
-      this.waitingQueue.push(this.cpuProcess!);
-      this.cpuProcess = null;
-      this.quantumCounter = 0;
-    }
   }
 }

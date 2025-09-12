@@ -11,10 +11,10 @@ import { SimulationResults } from "./components/SimulationResults";
 import { Clock } from "./simulator/Clock";
 
 function App() {
-  const [timec, setTimec] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
   const [algorithm, setAlgorithm] = useState("RR");
   const [quantum, setQuantum] = useState(4);
-  const [intervelMs, setIntervalMs] = useState(500);
+  const [intervalMs, setIntervalMs] = useState(500);
   const [processes, setProcesses] = useState<PCB[]>([
     {
       id: 1,
@@ -84,7 +84,7 @@ function App() {
       }
     );
     setRunning(false);
-    setTimec(0);
+    setCurrentTime(0);
   }, [algorithm, quantum, processes]);
 
   // Agregar proceso
@@ -105,10 +105,10 @@ function App() {
 
   useEffect(() => {
     clockRef.current = new Clock((time) => {
-      schedulerRef.current?.executeSimulation(time);
-      setTimec(time);
-    }, intervelMs);
-  }, [intervelMs]);
+      schedulerRef.current?.tick(time);
+      setCurrentTime(time);
+    }, intervalMs);
+  }, [intervalMs]);
 
   // controles
   const handleStart = () => {
@@ -126,7 +126,7 @@ function App() {
   const handleReset = () => {
     clockRef.current?.reset();
     setRunning(false);
-    setTimec(0);
+    setCurrentTime(0);
   };
 
   return (
@@ -162,10 +162,10 @@ function App() {
           <input
             type="number"
             min={100}
-            value={intervelMs}
+            value={intervalMs}
             onChange={(e) => setIntervalMs(Number(e.target.value))}
             onBlur={() => {
-              if (intervelMs < 100) setIntervalMs(100);
+              if (intervalMs < 100) setIntervalMs(100);
             }}
             style={{ width: 70, marginLeft: 5 }}
           />
@@ -178,7 +178,7 @@ function App() {
         onReset={handleReset}
         running={running}
       />
-      <div>Tiempo actual: {timec}</div>
+      <div>Tiempo actual: {currentTime}</div>
       <ProcessTable processes={processes} />
       <SimulationResults processes={finalProcesses} />
     </div>
