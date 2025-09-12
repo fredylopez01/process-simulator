@@ -1,31 +1,22 @@
-import React from "react";
-import type { PCB } from "../simulator/models/PCB";
+import { useSimulation } from "../context/SimulationContext";
 
-interface SimulationResultsProps {
-  processes: PCB[];
-}
-
-export const SimulationResults: React.FC<SimulationResultsProps> = ({
-  processes,
-}) => {
-  if (!processes.length) return null;
-
-  // Filtrar solo los procesos terminados
-  const finished = processes.filter((p) => p.completionTime > 0);
-  if (!finished.length) return null;
+export function SimulationResults() {
+  const { finalProcesses, processes } = useSimulation();
 
   const avgTurnaround = (
-    finished.reduce((acc, p) => acc + p.turnaroundTime, 0) / finished.length
+    finalProcesses.reduce((acc, p) => acc + p.turnaroundTime, 0) /
+    finalProcesses.length
   ).toFixed(2);
   const avgWaiting = (
-    finished.reduce((acc, p) => acc + p.waitingTime, 0) / finished.length
+    finalProcesses.reduce((acc, p) => acc + p.waitingTime, 0) /
+    finalProcesses.length
   ).toFixed(2);
 
   return (
     <div style={{ marginTop: 20 }}>
       <h3>Resultados de la Simulación</h3>
       <div>
-        Procesos finalizados: {finished.length} / {processes.length}
+        Procesos finalizados: {finalProcesses.length} / {processes.length}
       </div>
       <div>Promedio Turnaround: {avgTurnaround}</div>
       <div>Promedio Waiting: {avgWaiting}</div>
@@ -41,7 +32,7 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
           </tr>
         </thead>
         <tbody>
-          {finished.map((p) => (
+          {finalProcesses.map((p) => (
             <tr key={p.id}>
               <td>{p.id}</td>
               <td>{p.arrivalTime}</td>
@@ -55,4 +46,4 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
       </table>
     </div>
   );
-};
+}

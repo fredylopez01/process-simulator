@@ -1,18 +1,15 @@
 import { useState } from "react";
-import type { PCB } from "../simulator/models/PCB";
+import { useSimulation } from "../context/SimulationContext";
 
-interface FormNewProcessProps {
-  onAdd: (process: Omit<PCB, "id" | "remainingTime" | "state">) => void;
-}
-
-export function FormNewProcess({ onAdd }: FormNewProcessProps) {
+export function FormNewProcess() {
+  const { addProcess } = useSimulation();
   const [arrivalTime, setArrivalTime] = useState(0);
   const [burstTime, setBurstTime] = useState(1);
   const [priority, setPriority] = useState(1);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onAdd({
+    addProcess({
       arrivalTime,
       burstTime,
       completionTime: 0,

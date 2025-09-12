@@ -1,11 +1,7 @@
-import React from "react";
-import type { PCB } from "../simulator/models/PCB";
+import { useSimulation } from "../context/SimulationContext";
 
-interface ProcessTableProps {
-  processes: PCB[];
-}
-
-export const ProcessTable: React.FC<ProcessTableProps> = ({ processes }) => {
+export function ProcessTable() {
+  const { processes } = useSimulation();
   return (
     <table border={1} style={{ width: "100%", marginTop: 10 }}>
       <thead>
@@ -38,4 +34,4 @@ export const ProcessTable: React.FC<ProcessTableProps> = ({ processes }) => {
       </tbody>
     </table>
   );
-};
+}
