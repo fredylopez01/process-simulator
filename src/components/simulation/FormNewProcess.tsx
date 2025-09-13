@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSimulation } from "../context/SimulationContext";
+import { useSimulation } from "../../context/useSimulation";
 
 export function FormNewProcess() {
   const { addProcess } = useSimulation();

@@ -1,4 +1,5 @@
-import { useSimulation } from "../context/SimulationContext";
+import { useSimulation } from "../../context/useSimulation";
+import {TableRow} from "../ui/tableRow";
 
 export function ProcessTable() {
   const { processes } = useSimulation();
@@ -14,22 +15,13 @@ export function ProcessTable() {
           <th>Priority</th>
           <th>Completion</th>
           <th>Turnaround</th>
+          <th>Normalized Turnaround</th>
           <th>Waiting</th>
         </tr>
       </thead>
       <tbody>
         {processes.map((p) => (
-          <tr key={p.id}>
-            <td>{p.id}</td>
-            <td>{p.arrivalTime}</td>
-            <td>{p.burstTime}</td>
-            <td>{p.remainingTime}</td>
-            <td>{p.state}</td>
-            <td>{p.priority}</td>
-            <td>{p.completionTime}</td>
-            <td>{p.turnaroundTime}</td>
-            <td>{p.waitingTime}</td>
-          </tr>
+          <TableRow key={p.id} process={p} />
         ))}
       </tbody>
     </table>

@@ -1,4 +1,4 @@
-import { useSimulation } from "../context/SimulationContext";
+import { useSimulation } from "../../context/useSimulation";
 
 export function ProcessControls() {
   const { start, pause, resume, reset, running } = useSimulation();

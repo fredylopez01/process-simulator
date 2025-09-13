@@ -1,4 +1,4 @@
-import { useSimulation } from "../context/SimulationContext";
+import { useSimulation } from "../../context/useSimulation";
 
 export function SimulationResults() {
   const { finalProcesses, processes } = useSimulation();
@@ -11,6 +11,7 @@ export function SimulationResults() {
     finalProcesses.reduce((acc, p) => acc + p.waitingTime, 0) /
     finalProcesses.length
   ).toFixed(2);
+  
 
   return (
     <div style={{ marginTop: 20 }}>
@@ -20,6 +21,8 @@ export function SimulationResults() {
       </div>
       <div>Promedio Turnaround: {avgTurnaround}</div>
       <div>Promedio Waiting: {avgWaiting}</div>
+
+      <div>Desviacion estandar de </div>
       <table border={1} style={{ width: "100%", marginTop: 10 }}>
         <thead>
           <tr>

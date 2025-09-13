@@ -1,5 +1,5 @@
 import type { PCB } from "../models/PCB";
-import type { ScheduleNextProcess } from "./scheduleNextProcess";
+import type { ScheduleNextProcess } from "./ScheduleNextProcess";
 
 export class SJF implements ScheduleNextProcess {
   getNextProcess(process: PCB[]): PCB {

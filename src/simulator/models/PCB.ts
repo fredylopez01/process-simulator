@@ -11,6 +11,7 @@ export interface PCB {
   burstTime: number;
   completionTime: number;
   turnaroundTime: number;
+  normalizedTurnaroundTime?: number;
   waitingTime: number;
   priority: number;
   remainingTime: number;

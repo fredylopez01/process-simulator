@@ -131,6 +131,7 @@ export class Scheduler {
     this.terminatedQueue.forEach((p) => {
       p.turnaroundTime = p.completionTime - p.arrivalTime;
       p.waitingTime = p.turnaroundTime - p.burstTime;
+      p.normalizedTurnaroundTime = p.turnaroundTime / p.burstTime;
     });
   }
 }
