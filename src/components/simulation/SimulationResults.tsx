@@ -1,15 +1,15 @@
 import { useSimulation } from "../../context/useSimulation";
 
 export function SimulationResults() {
-  const { finalProcesses, processes } = useSimulation();
+  const { processes } = useSimulation();
 
   const avgTurnaround = (
-    finalProcesses.reduce((acc, p) => acc + p.turnaroundTime, 0) /
-    finalProcesses.length
+    processes.reduce((acc, p) => acc + p.turnaroundTime, 0) /
+    processes.length
   ).toFixed(2);
   const avgWaiting = (
-    finalProcesses.reduce((acc, p) => acc + p.waitingTime, 0) /
-    finalProcesses.length
+    processes.reduce((acc, p) => acc + p.waitingTime, 0) /
+    processes.length
   ).toFixed(2);
   
 

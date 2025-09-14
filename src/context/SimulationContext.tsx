@@ -5,11 +5,10 @@ export type SimulationContextType = {
   currentTime: number;
   running: boolean;
   processes: PCB[];
-  finalProcesses: PCB[];
   algorithm: string;
   quantum: number;
   intervalMs: number;
-  addProcess: (p: Omit<PCB, "id" | "remainingTime" | "state">) => void;
+  //addProcess: (p: Omit<PCB, "id" | "remainingTime" | "state">) => void;
   setAlgorithm: (alg: string) => void;
   setQuantum: (q: number) => void;
   setIntervalMs: (ms: number) => void;

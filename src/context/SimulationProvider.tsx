@@ -1,19 +1,19 @@
-import React, { useState, useRef, useEffect } from "react";
-import type { PCB } from "../simulator/models/PCB";
+import React, { useState, useRef, useEffect} from "react";
 import { Scheduler } from "../simulator/Scheduler";
 import { Clock } from "../simulator/Clock";
 import { FCFS } from "../simulator/algorithms/FCFS";
 import { SJF } from "../simulator/algorithms/SJF";
 import { RoundRobin } from "../simulator/algorithms/RoundRobin";
 import { SimulationContext } from "./SimulationContext";
+import { useSimulationReducer } from "../hooks/useSimulationReducer";
+
 
 export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [algorithm, setAlgorithm] = useState("RR");
   const [quantum, setQuantum] = useState(4);
   const [intervalMs, setIntervalMs] = useState(500);
-  const [processes, setProcesses] = useState<PCB[]>([]);
-  const [finalProcesses, setFinalProcesses] = useState<PCB[]>([]);
+  const { processes } = useSimulationReducer();
   const [running, setRunning] = useState(false);
 
   const schedulerRef = useRef<Scheduler | null>(null);
@@ -28,7 +28,7 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     const cloned = processes.map((p) => ({ ...p }));
     schedulerRef.current = new Scheduler(cloned, algoInstance, (ended) => {
-      setFinalProcesses(ended.map((p) => ({ ...p })));
+      //setFinalProcesses(ended.map((p) => ({ ...p })));
       pause();
     });
     setRunning(false);
@@ -43,6 +43,7 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }, intervalMs);
   }, [intervalMs]);
 
+  /* Ya no es necesario porque se maneja con el reducer
   const addProcess = (process: Omit<PCB, "id" | "remainingTime" | "state">) => {
     setProcesses((prev) => [
       ...prev,
@@ -54,6 +55,7 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       },
     ]);
   };
+  */
 
   const start = () => {
     clockRef.current?.start();
@@ -79,11 +81,9 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         currentTime,
         running,
         processes,
-        finalProcesses,
         algorithm,
         quantum,
         intervalMs,
-        addProcess,
         setAlgorithm,
         setQuantum,
         setIntervalMs,

@@ -16,7 +16,6 @@ export function SimulationSection() {
             <h1 className="text-3xl font-bold underline">
     Hello world!
   </h1>
-
             <FormNewProcess />
             <AlgorithmSettings />
             <ProcessControls />
