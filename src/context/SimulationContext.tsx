@@ -9,6 +9,7 @@ export type SimulationContextType = {
   quantum: number;
   intervalMs: number;
   addProcessListener: (p: Omit<PCB, "id" | "remainingTime" | "state">) => void;
+  deleteProcess: (id: number) => void;
   setAlgorithm: (alg: string) => void;
   setQuantum: (q: number) => void;
   setIntervalMs: (ms: number) => void;

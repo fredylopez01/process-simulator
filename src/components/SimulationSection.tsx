@@ -4,10 +4,12 @@ import { ProcessTable } from "./simulation/ProcessTable";
 import { AlgorithmSettings } from "./simulation/AlgorithmSettings";
 import { ClockDisplay } from "./simulation/ClockDisplay";
 import { TableState } from "./ui/TableState";
+import { GanttDiagram } from "./ui/GanttDiagram";
 
 export function SimulationSection() {
   return (
     <section className="max-w-6xl mx-auto p-6">
+      
       <div className="bg-white shadow-md rounded-lg p-6 mb-8 text-center">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">
           Simulador de Planificación de Procesos
@@ -39,6 +41,8 @@ export function SimulationSection() {
           </div>
         </div>
       </div>
+
+      <GanttDiagram />
     </section>
   );
 }

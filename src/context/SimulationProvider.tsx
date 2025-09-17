@@ -19,6 +19,8 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const schedulerRef = useRef<Scheduler | null>(null);
   const clockRef = useRef<Clock | null>(null);
+
+  const [processesCounter, setProcessesCounter] = useState(0);
   
   // Configura el reloj
   useEffect(() => {
@@ -32,13 +34,19 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const addProcessListener = (process: Omit<PCB, "id" | "remainingTime" | "state">) => {
     setInitialProcesses((prev) => [
       ...prev,
-      { ...process, id: prev.length + 1, remainingTime: process.burstTime, state: "Created" },
+      { ...process, id: processesCounter, remainingTime: process.burstTime, state: "Created" },
     ]);
     setProcesses((prev) => [
       ...prev,
-      { ...process, id: prev.length + 1, remainingTime: process.burstTime, state: "Created" },
+      { ...process, id: processesCounter, remainingTime: process.burstTime, state: "Created" },
     ]);
+    setProcessesCounter(processesCounter + 1);
   };
+
+  const deleteProcess = (id: number) =>{
+    setProcesses((prev) => prev.filter((p) => p.id !== id));
+    setInitialProcesses((prev) => prev.filter((p) => p.id !== id));
+  }
 
   const createScheduler = (procs: PCB[]) => {
     let algoInstance;
@@ -104,6 +112,7 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         quantum,
         intervalMs,
         addProcessListener,
+        deleteProcess,
         setAlgorithm,
         setQuantum,
         setIntervalMs,
