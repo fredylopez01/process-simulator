@@ -5,8 +5,10 @@ import { Clock } from "../simulator/Clock";
 import { FCFS } from "../simulator/algorithms/FCFS";
 import { SJF } from "../simulator/algorithms/SJF";
 import { RoundRobin } from "../simulator/algorithms/RoundRobin";
+import type { State } from "../simulator/models/State";
 
 type SimulationContextType = {
+  state: State | undefined;
   currentTime: number;
   running: boolean;
   processes: PCB[];
@@ -22,6 +24,7 @@ type SimulationContextType = {
   pause: () => void;
   resume: () => void;
   reset: () => void;
+  updateState: () => void;
 };
 
 const SimulationContext = createContext<SimulationContextType | undefined>(
@@ -33,6 +36,7 @@ export function SimulationProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const [state, setState] = useState<State | undefined>(undefined);
   const [currentTime, setCurrentTime] = useState(0);
   const [algorithm, setAlgorithm] = useState("RR");
   const [quantum, setQuantum] = useState(4);
@@ -64,6 +68,7 @@ export function SimulationProvider({
   useEffect(() => {
     clockRef.current = new Clock((time) => {
       schedulerRef.current?.tick(time);
+      updateState();
       setCurrentTime(time);
     }, intervalMs);
   }, [intervalMs]);
@@ -98,9 +103,14 @@ export function SimulationProvider({
     setCurrentTime(0);
   };
 
+  const updateState = () => {
+    setState(schedulerRef.current?.getState());
+  };
+
   return (
     <SimulationContext.Provider
       value={{
+        state,
         currentTime,
         running,
         processes,
@@ -116,6 +126,7 @@ export function SimulationProvider({
         pause,
         resume,
         reset,
+        updateState,
       }}
     >
       {children}

@@ -2,8 +2,10 @@ import {
   AlgorithmSettings,
   ClockDisplay,
   FormNewProcess,
+  GanttDiagram,
   ProcessControls,
   ProcessTable,
+  ProcessUpdatingTable,
   SimulationResults,
 } from "./components";
 import { SimulationProvider } from "./context/SimulationContext";
@@ -18,6 +20,8 @@ function App() {
         <ProcessControls />
         <ClockDisplay />
         <ProcessTable />
+        <ProcessUpdatingTable />
+        <GanttDiagram />
         <SimulationResults />
       </div>
     </SimulationProvider>
