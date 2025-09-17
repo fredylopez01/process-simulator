@@ -5,7 +5,7 @@ import { FCFS } from "../simulator/algorithms/FCFS";
 import { SJF } from "../simulator/algorithms/SJF";
 import { RoundRobin } from "../simulator/algorithms/RoundRobin";
 import { SimulationContext } from "./SimulationContext";
-import { useSimulationReducer } from "../hooks/useSimulationReducer";
+import type { PCB } from "../simulator/models/PCB";
 
 
 export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -13,28 +13,13 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [algorithm, setAlgorithm] = useState("RR");
   const [quantum, setQuantum] = useState(4);
   const [intervalMs, setIntervalMs] = useState(500);
-  const { processes } = useSimulationReducer();
+  const [processes, setProcesses] = useState<PCB[]>([]);
+  const [initial_processes, setInitialProcesses] = useState<PCB[]>([]);
   const [running, setRunning] = useState(false);
 
   const schedulerRef = useRef<Scheduler | null>(null);
   const clockRef = useRef<Clock | null>(null);
-
-  // Configura el scheduler
-  useEffect(() => {
-    let algoInstance;
-    if (algorithm === "FCFS") algoInstance = new FCFS();
-    else if (algorithm === "SJF") algoInstance = new SJF();
-    else algoInstance = new RoundRobin(quantum);
-
-    const cloned = processes.map((p) => ({ ...p }));
-    schedulerRef.current = new Scheduler(cloned, algoInstance, (ended) => {
-      //setFinalProcesses(ended.map((p) => ({ ...p })));
-      pause();
-    });
-    setRunning(false);
-    setCurrentTime(0);
-  }, [algorithm, quantum, processes]);
-
+  
   // Configura el reloj
   useEffect(() => {
     clockRef.current = new Clock((time) => {
@@ -43,24 +28,55 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }, intervalMs);
   }, [intervalMs]);
 
-  /* Ya no es necesario porque se maneja con el reducer
-  const addProcess = (process: Omit<PCB, "id" | "remainingTime" | "state">) => {
+
+  const addProcessListener = (process: Omit<PCB, "id" | "remainingTime" | "state">) => {
+    setInitialProcesses((prev) => [
+      ...prev,
+      { ...process, id: prev.length + 1, remainingTime: process.burstTime, state: "Created" },
+    ]);
     setProcesses((prev) => [
       ...prev,
-      {
-        ...process,
-        id: prev.length ? Math.max(...prev.map((p) => p.id)) + 1 : 1,
-        remainingTime: process.burstTime,
-        state: "Created",
-      },
+      { ...process, id: prev.length + 1, remainingTime: process.burstTime, state: "Created" },
     ]);
   };
-  */
+
+  const createScheduler = (procs: PCB[]) => {
+    let algoInstance;
+    if (algorithm === "FCFS") algoInstance = new FCFS();
+    else if (algorithm === "SJF") algoInstance = new SJF();
+    else algoInstance = new RoundRobin(quantum);
+
+    const cloned = procs.map((p) => ({ ...p }));
+
+    schedulerRef.current = new Scheduler(
+      cloned,
+      algoInstance,
+      (ended) => {
+        setProcesses(ended);
+        clockRef.current?.pause();
+        setRunning(false);
+        setCurrentTime(0);
+      },
+      (snapshot) => {
+        // Actualización en tiempo real
+        setProcesses(snapshot);
+      }
+    );
+  };
+
+
 
   const start = () => {
-    clockRef.current?.start();
-    setRunning(true);
+    if (!running && initial_processes.length > 0) {
+      // reinicia con los procesos originales
+      setProcesses(initial_processes);
+      createScheduler(initial_processes);
+      clockRef.current?.reset();
+      clockRef.current?.start();
+      setRunning(true);
+    }
   };
+
   const pause = () => {
     clockRef.current?.pause();
     setRunning(false);
@@ -71,9 +87,12 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   };
   const reset = () => {
     clockRef.current?.reset();
+    setProcesses(initial_processes);
+    createScheduler(initial_processes);
     setRunning(false);
     setCurrentTime(0);
-  };
+};
+
 
   return (
     <SimulationContext.Provider
@@ -84,6 +103,7 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         algorithm,
         quantum,
         intervalMs,
+        addProcessListener,
         setAlgorithm,
         setQuantum,
         setIntervalMs,

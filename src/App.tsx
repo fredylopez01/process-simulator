@@ -8,6 +8,9 @@ function App() {
     <SimulationProvider>
       <SimulationSection/>
     </SimulationProvider>
+
+    
+
   );
 }
 

@@ -2,14 +2,14 @@ import { useState } from "react";
 import { useSimulation } from "../../context/useSimulation";
 
 export function FormNewProcess() {
-  const { addProcess } = useSimulation();
+  const { addProcessListener } = useSimulation();
   const [arrivalTime, setArrivalTime] = useState(0);
   const [burstTime, setBurstTime] = useState(1);
   const [priority, setPriority] = useState(1);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addProcess({
+    addProcessListener({
       arrivalTime,
       burstTime,
       completionTime: 0,
@@ -23,38 +23,59 @@ export function FormNewProcess() {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: 10 }}>
-      <label htmlFor="arrivalTime">Arrival time:</label>
-      <input
-        type="number"
-        name="arrivalTime"
-        id="arrivalTime"
-        value={arrivalTime}
-        min={0}
-        onChange={(e) => setArrivalTime(Number(e.target.value))}
-      />
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white shadow-md rounded-lg p-6 mb-6 flex flex-wrap gap-6 items-end"
+    >
+      {/* Arrival Time */}
+      <label className="flex flex-col text-sm font-medium text-gray-600 w-32">
+        Arrival Time
+        <input
+          type="number"
+          name="arrivalTime"
+          id="arrivalTime"
+          value={arrivalTime}
+          min={0}
+          onChange={(e) => setArrivalTime(Number(e.target.value))}
+          className="mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </label>
 
-      <label htmlFor="burstTime">Burst time:</label>
-      <input
-        type="number"
-        name="burstTime"
-        id="burstTime"
-        value={burstTime}
-        min={1}
-        onChange={(e) => setBurstTime(Number(e.target.value))}
-      />
+      {/* Burst Time */}
+      <label className="flex flex-col text-sm font-medium text-gray-600 w-32">
+        Burst Time
+        <input
+          type="number"
+          name="burstTime"
+          id="burstTime"
+          value={burstTime}
+          min={1}
+          onChange={(e) => setBurstTime(Number(e.target.value))}
+          className="mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </label>
 
-      <label htmlFor="priority">Priority:</label>
-      <input
-        type="number"
-        name="priority"
-        id="priority"
-        value={priority}
-        min={1}
-        onChange={(e) => setPriority(Number(e.target.value))}
-      />
+      {/* Priority */}
+      <label className="flex flex-col text-sm font-medium text-gray-600 w-32">
+        Priority
+        <input
+          type="number"
+          name="priority"
+          id="priority"
+          value={priority}
+          min={1}
+          onChange={(e) => setPriority(Number(e.target.value))}
+          className="mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </label>
 
-      <button type="submit">Agregar proceso</button>
+      {/* Submit Button */}
+      <button
+        type="submit"
+        className="px-5 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow hover:bg-indigo-700 transition"
+      >
+        Agregar Proceso
+      </button>
     </form>
   );
 }

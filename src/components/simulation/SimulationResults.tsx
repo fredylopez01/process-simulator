@@ -14,16 +14,16 @@ export function SimulationResults() {
   
 
   return (
-    <div style={{ marginTop: 20 }}>
+    <div>
       <h3>Resultados de la Simulación</h3>
       <div>
-        Procesos finalizados: {finalProcesses.length} / {processes.length}
+        Procesos finalizados: {processes.filter(p => p.state === "Terminated").length} / {processes.length}
       </div>
       <div>Promedio Turnaround: {avgTurnaround}</div>
       <div>Promedio Waiting: {avgWaiting}</div>
 
       <div>Desviacion estandar de </div>
-      <table border={1} style={{ width: "100%", marginTop: 10 }}>
+      <table>
         <thead>
           <tr>
             <th>ID</th>
@@ -35,7 +35,7 @@ export function SimulationResults() {
           </tr>
         </thead>
         <tbody>
-          {finalProcesses.map((p) => (
+          {processes.map((p) => (
             <tr key={p.id}>
               <td>{p.id}</td>
               <td>{p.arrivalTime}</td>

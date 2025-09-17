@@ -1,29 +1,32 @@
 import { useSimulation } from "../../context/useSimulation";
-import {TableRow} from "../ui/tableRow";
+import { TableRow } from "../ui/TableRow";
 
 export function ProcessTable() {
   const { processes } = useSimulation();
+
   return (
-    <table border={1} style={{ width: "100%", marginTop: 10 }}>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Arrival</th>
-          <th>Burst</th>
-          <th>Remaining</th>
-          <th>State</th>
-          <th>Priority</th>
-          <th>Completion</th>
-          <th>Turnaround</th>
-          <th>Normalized Turnaround</th>
-          <th>Waiting</th>
-        </tr>
-      </thead>
-      <tbody>
-        {processes.map((p) => (
-          <TableRow key={p.id} process={p} />
-        ))}
-      </tbody>
-    </table>
+    <div className="overflow-x-auto rounded-lg shadow-md my-6">
+      <table className="min-w-full border border-gray-300 text-sm text-left">
+        <thead className="bg-indigo-600 text-white">
+          <tr>
+            <th className="px-3 py-2 border border-gray-300">ID</th>
+            <th className="px-3 py-2 border border-gray-300">Arrival</th>
+            <th className="px-3 py-2 border border-gray-300">Burst</th>
+            <th className="px-3 py-2 border border-gray-300">Remaining</th>
+            <th className="px-3 py-2 border border-gray-300">State</th>
+            <th className="px-3 py-2 border border-gray-300">Priority</th>
+            <th className="px-3 py-2 border border-gray-300">Completion</th>
+            <th className="px-3 py-2 border border-gray-300">Turnaround</th>
+            <th className="px-3 py-2 border border-gray-300">Normalized T.A.</th>
+            <th className="px-3 py-2 border border-gray-300">Waiting</th>
+          </tr>
+        </thead>
+        <tbody>
+          {processes.map((p, i) => (
+            <TableRow key={p.id} process={p} index={i} />
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

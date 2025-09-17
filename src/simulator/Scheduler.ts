@@ -11,11 +11,13 @@ export class Scheduler {
   private scheduleNextProcess: ScheduleNextProcess;
   private quantumCounter = 0;
   private onFinish: (all: PCB[]) => void;
+  private onTick?: (all: PCB[]) => void;
 
   constructor(
     createdQueue: PCB[],
     algorithm: ScheduleNextProcess,
-    onFinish: (all: PCB[]) => void
+    onFinish: (all: PCB[]) => void,
+    onTick?: (all: PCB[]) => void 
   ) {
     this.createdQueue = createdQueue;
     this.readyQueue = [];
@@ -24,6 +26,7 @@ export class Scheduler {
     this.cpuProcess = null;
     this.scheduleNextProcess = algorithm;
     this.onFinish = onFinish;
+    this.onTick = onTick;
   }
 
   /** Avanza un tick de simulación */
@@ -38,17 +41,39 @@ export class Scheduler {
 
     this.dispatchIfNeeded();
     this.checkIfFinished();
+
+    // Notificar snapshot en cada tick
+    if (this.onTick) {
+      this.onTick(this.getAllProcesses());
+    }
+  }
+
+  /** Devuelve snapshot de todos los procesos */
+  public getAllProcesses(): PCB[] {
+    return [
+      ...this.createdQueue,
+      ...this.readyQueue,
+      ...this.waitingQueue,
+      ...(this.cpuProcess ? [this.cpuProcess] : []),
+      ...this.terminatedQueue,
+    ];
+  }
+
+  public getTerminatedProcesses(): PCB[] {
+    return this.terminatedQueue;
   }
 
   /** Mueve procesos que ya llegaron a la cola de listos */
   private moveArrivalsToReady(time: number) {
     if (this.waitingQueue.length > 0) {
+      this.waitingQueue.forEach(p => (p.state = "Ready"));
       this.readyQueue.push(...this.waitingQueue);
       this.waitingQueue = [];
     }
 
     this.createdQueue = this.createdQueue.filter((process) => {
       if (process.arrivalTime === time) {
+        process.state = "Ready";  
         this.readyQueue.push(process);
         return false;
       }
@@ -65,6 +90,7 @@ export class Scheduler {
       this.readyQueue = this.readyQueue.filter(
         (p) => p.id !== this.cpuProcess!.id
       );
+      this.cpuProcess.state = "Executing";
       this.quantumCounter = 0;
     }
   }
@@ -91,6 +117,7 @@ export class Scheduler {
   private finishProcess(currentTime: number) {
     if (!this.cpuProcess) return;
     this.cpuProcess.completionTime = currentTime;
+    this.cpuProcess.state = "Terminated"; 
     this.terminatedQueue.push(this.cpuProcess);
     this.cpuProcess = null;
     this.quantumCounter = 0;
@@ -109,6 +136,7 @@ export class Scheduler {
   /** Saca al proceso de CPU y lo pasa a espera */
   private preemptProcess() {
     if (!this.cpuProcess) return;
+    this.cpuProcess.state = "Waiting";
     this.waitingQueue.push(this.cpuProcess);
     this.cpuProcess = null;
     this.quantumCounter = 0;
