@@ -55,20 +55,6 @@ export function FormNewProcess() {
         />
       </label>
 
-      {/* Priority */}
-      <label className="flex flex-col text-sm font-medium text-gray-600 w-32">
-        Priority
-        <input
-          type="number"
-          name="priority"
-          id="priority"
-          value={priority}
-          min={1}
-          onChange={(e) => setPriority(Number(e.target.value))}
-          className="mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-      </label>
-
       {/* Submit Button */}
       <button
         type="submit"

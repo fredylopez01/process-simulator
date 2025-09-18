@@ -1,6 +1,9 @@
 import type { PCB } from "../../simulator/models/PCB";
 
-export function TableRow({ process, index }: { process: PCB; index: number }) {
+export function TableRow({ process, index, onDelete }: { process: PCB; index: number; onDelete: (id: number) => void }) {
+
+
+
   return (
     <tr className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
       <td className="px-3 py-2 border border-gray-300 text-center">{process.id}</td>
@@ -15,6 +18,14 @@ export function TableRow({ process, index }: { process: PCB; index: number }) {
         {process.normalizedTurnaroundTime?.toFixed(2) ?? "-"}
       </td>
       <td className="px-3 py-2 border border-gray-300 text-center">{process.waitingTime}</td>
+      <td className="px-3 py-2 border border-gray-300 text-center">
+        <button
+          onClick={() => onDelete?.(process.id)}
+          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+        >
+          Eliminar
+        </button>
+      </td>
     </tr>
   );
 }

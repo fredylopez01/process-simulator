@@ -2,7 +2,12 @@ import { useSimulation } from "../../context/useSimulation";
 import { TableRow } from "../ui/TableRow";
 
 export function ProcessTable() {
-  const { processes } = useSimulation();
+  const { processes, deleteProcess } = useSimulation();
+
+  const onDelete = (id: number) => {
+    console.log("Deleting process", id);
+    deleteProcess(id);
+  }
 
   return (
     <div className="overflow-x-auto rounded-lg shadow-md my-6">
@@ -23,7 +28,7 @@ export function ProcessTable() {
         </thead>
         <tbody>
           {processes.map((p, i) => (
-            <TableRow key={p.id} process={p} index={i} />
+            <TableRow key={p.id} process={p} index={i} onDelete={onDelete} />
           ))}
         </tbody>
       </table>
