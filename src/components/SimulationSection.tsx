@@ -4,6 +4,7 @@ import { ProcessTable } from "./simulation/ProcessTable";
 import { AlgorithmSettings } from "./simulation/AlgorithmSettings";
 import { ClockDisplay } from "./simulation/ClockDisplay";
 import { TableState } from "./ui/TableState";
+import { GanttDiagram } from "./ui/GanttDiagram";
 
 export function SimulationSection() {
   return (
@@ -16,13 +17,14 @@ export function SimulationSection() {
         <ClockDisplay />
       </div>
 
-
-      
-
       <div className="space-y-6">
         <FormNewProcess />
         <AlgorithmSettings />
         <ProcessTable />
+
+        <div>
+          <GanttDiagram />
+        </div>
 
         <div className="flex flex-row gap-6 justify-between items-start overflow-x-auto">
           <div className="flex-1 min-w-[200px]">
