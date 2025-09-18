@@ -11,13 +11,11 @@ export class Scheduler {
   private scheduleNextProcess: ScheduleNextProcess;
   private quantumCounter = 0;
   private onFinish: (all: PCB[]) => void;
-  private onTick?: (all: PCB[]) => void;
 
   constructor(
     createdQueue: PCB[],
     algorithm: ScheduleNextProcess,
-    onFinish: (all: PCB[]) => void,
-    onTick?: (all: PCB[]) => void 
+    onFinish: (all: PCB[]) => void
   ) {
     this.createdQueue = createdQueue;
     this.readyQueue = [];
@@ -26,14 +24,11 @@ export class Scheduler {
     this.cpuProcess = null;
     this.scheduleNextProcess = algorithm;
     this.onFinish = onFinish;
-    this.onTick = onTick;
   }
 
   /** Avanza un tick de simulación */
   public tick(time: number) {
     this.moveArrivalsToReady(time);
-    if (time === 0) return;
-    this.dispatchIfNeeded();
 
     if (this.cpuProcess) {
       this.runCpuProcess(time);
@@ -41,11 +36,6 @@ export class Scheduler {
 
     this.dispatchIfNeeded();
     this.checkIfFinished();
-
-    // Notificar snapshot en cada tick
-    if (this.onTick) {
-      this.onTick(this.getAllProcesses());
-    }
   }
 
   /** Devuelve snapshot de todos los procesos */
@@ -66,14 +56,14 @@ export class Scheduler {
   /** Mueve procesos que ya llegaron a la cola de listos */
   private moveArrivalsToReady(time: number) {
     if (this.waitingQueue.length > 0) {
-      this.waitingQueue.forEach(p => (p.state = "Ready"));
+      this.waitingQueue.forEach((p) => (p.state = "Ready"));
       this.readyQueue.push(...this.waitingQueue);
       this.waitingQueue = [];
     }
 
     this.createdQueue = this.createdQueue.filter((process) => {
       if (process.arrivalTime === time) {
-        process.state = "Ready";  
+        process.state = "Ready";
         this.readyQueue.push(process);
         return false;
       }
@@ -117,7 +107,7 @@ export class Scheduler {
   private finishProcess(currentTime: number) {
     if (!this.cpuProcess) return;
     this.cpuProcess.completionTime = currentTime;
-    this.cpuProcess.state = "Terminated"; 
+    this.cpuProcess.state = "Terminated";
     this.terminatedQueue.push(this.cpuProcess);
     this.cpuProcess = null;
     this.quantumCounter = 0;
