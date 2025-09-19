@@ -25,12 +25,21 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Configura el reloj
   useEffect(() => {
-    clockRef.current = new Clock((time) => {
-      schedulerRef.current?.tick(time);
-      setProcesses(schedulerRef.current?.getAllProcesses() ?? []);
-      setCurrentTime(time);
-    }, intervalMs);
-  }, [intervalMs]);
+  clockRef.current = new Clock((time) => {
+    console.log(`=== CLOCK TICK ${time} ===`);
+      console.log("Processes before tick:", schedulerRef.current?.getAllProcesses());
+    
+    schedulerRef.current?.tick(time);
+    const updatedProcesses = schedulerRef.current?.getAllProcesses() ?? [];
+    
+    console.log("Processes after tick:", updatedProcesses);
+      console.log("States:", updatedProcesses.map(p => `P${p.id}: ${p.state}`));
+      
+    
+    setProcesses(updatedProcesses);
+    setCurrentTime(time);
+  }, intervalMs);
+}, [intervalMs]);
 
   const addProcessListener = (
     process: Omit<PCB, "id" | "remainingTime" | "state">
@@ -79,6 +88,8 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const start = () => {
     if (!running && initial_processes.length > 0) {
+      console.log("=== STARTING SIMULATION ===");
+      console.log("Initial processes:", initial_processes);
       reset();
       // reinicia con los procesos originales
       setProcesses(initial_processes);
