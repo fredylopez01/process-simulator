@@ -23,12 +23,12 @@ TableState   GanttDiagram
 ```
 -----
 
-## 3. Fases del mecanismo
+## Fases del mecanismo
 ```markdown
 # Fases del mecanismo
 
 ### Creación de procesos
-- El usuario usa **FormNewProcess**.
+- El usuario usa **FormNewProcess** para agregar un nuevo proceso.
 - Por medio del contexto, se envian los procesos creados al provider
 - Se llama a **addProcessListener**.
 - Los procesos quedan en *initial_processes* y *processes* dentro del **SimulationProvider**
@@ -45,6 +45,10 @@ currentTime <- currentTime + 1
 
 - El **Scheduler** elige el proceso a ejecutar y maneja toda la logica para mover de estados a los procesos
 - El estado global *processes* se actualiza con los estados (*Ready, Executing, Waiting, Waiting IO, Terminated*).
+
+### Durante ejecucion
+- El provider consume los procesos modificados por el Scheduler cada vez que pasa un tick en el Clock, de esa manera
+los componentes graficos pueden mantenerse actualizados al utilizar la informacion de los procesos actualizados
 
 ```
 
