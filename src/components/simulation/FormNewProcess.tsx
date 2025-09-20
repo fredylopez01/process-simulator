@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useSimulation } from "../../context/useSimulation";
 
+// Componente FormNewProcess compacto
 export function FormNewProcess() {
   const { addProcessListener, running } = useSimulation();
   const [arrivalTime, setArrivalTime] = useState(0);
   const [burstTime, setBurstTime] = useState(1);
   const [priority, setPriority] = useState(1);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     addProcessListener({
       arrivalTime,
       burstTime,
@@ -23,65 +23,62 @@ export function FormNewProcess() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-white shadow-md rounded-lg p-6 mb-6 w-full h-full flex flex-row flex-wrap gap-4 items-end"
-    >
-      {/* Título */}
-      <h3 className="text-lg font-bold text-gray-800 border-b pb-2 mb-4 w-full">
-        Nuevo Proceso
+    <div className="bg-white shadow-sm rounded-lg p-4 h-full flex flex-col">
+      <h3 className="text-md font-bold text-gray-800 mb-3 border-b pb-2">
+        ➕ Nuevo Proceso
       </h3>
 
-      {/* Arrival Time */}
-      <label className="flex flex-col text-sm font-medium text-gray-600 w-32">
-        Arrival Time
-        <input
-          type="number"
-          name="arrivalTime"
-          id="arrivalTime"
-          value={arrivalTime}
-          min={0}
-          onChange={(e) => setArrivalTime(Number(e.target.value))}
-          className="mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-      </label>
+      <div className="grid grid-cols-4 gap-3 flex-1">
+        <div className="flex flex-col">
+          <label className="text-xs font-medium text-gray-600 mb-1">
+            Arrival Time
+          </label>
+          <input
+            type="number"
+            value={arrivalTime}
+            min={0}
+            onChange={(e) => setArrivalTime(Number(e.target.value))}
+            className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            disabled={running}
+          />
+        </div>
 
-      {/* Burst Time */}
-      <label className="flex flex-col text-sm font-medium text-gray-600 w-32">
-        Burst Time
-        <input
-          type="number"
-          name="burstTime"
-          id="burstTime"
-          value={burstTime}
-          min={1}
-          onChange={(e) => setBurstTime(Number(e.target.value))}
-          className="mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-      </label>
+        <div className="flex flex-col">
+          <label className="text-xs font-medium text-gray-600 mb-1">
+            Burst Time
+          </label>
+          <input
+            type="number"
+            value={burstTime}
+            min={1}
+            onChange={(e) => setBurstTime(Number(e.target.value))}
+            className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            disabled={running}
+          />
+        </div>
 
-      {/* Priority */}
-      <label className="flex flex-col text-sm font-medium text-gray-600 w-32">
-        Priority
-        <input
-          type="number"
-          name="priority"
-          id="priority"
-          value={priority}
-          min={1}
-          onChange={(e) => setPriority(Number(e.target.value))}
-          className="mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-      </label>
+        <div className="flex flex-col">
+          <label className="text-xs font-medium text-gray-600 mb-1">
+            Priority
+          </label>
+          <input
+            type="number"
+            value={priority}
+            min={1}
+            onChange={(e) => setPriority(Number(e.target.value))}
+            className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            disabled={running}
+          />
+        </div>
 
-      {/* Submit Button */}
-      <button
-        type="submit"
-        className="px-3 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-lg shadow hover:bg-indigo-700 transition"
-        disabled={running}
-      >
-        Agregar
-      </button>
-    </form>
+        <button
+          onClick={handleSubmit}
+          className="mt-3 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          disabled={running}
+        >
+          Agregar Proceso
+        </button>
+      </div>
+    </div>
   );
 }

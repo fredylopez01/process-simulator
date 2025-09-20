@@ -1,73 +1,90 @@
-import { FormNewProcess } from "./simulation/FormNewProcess";
+import { useState } from "react";
 import { ProcessControls } from "./simulation/ProcessControls";
-import { ProcessTable } from "./simulation/ProcessTable";
-import { AlgorithmSettings } from "./simulation/AlgorithmSettings";
 import { ClockDisplay } from "./simulation/ClockDisplay";
-import { TableState } from "./ui/TableState";
 import { GanttDiagram } from "./ui/GanttDiagram";
 import { useSimulation } from "../context/useSimulation";
+import { StatsModal } from "./ui/StatsModal";
+import { FormNewProcess } from "./simulation/FormNewProcess";
+import { AlgorithmSettings } from "./simulation/AlgorithmSettings";
+import { ProcessTable } from "./simulation/ProcessTable";
 
 export function SimulationSection() {
-  const { processes, currentTime } = useSimulation();
+  const { processes, currentTime, running } = useSimulation();
+  const [showStats, setShowStats] = useState(false);
 
   return (
-    <section className="w-full p-0">
-      <div className="w-full h-14 sticky top-0 z-50 bg-gray-900 text-white flex items-center justify-between px-6 shadow-md">
+    <div className=" flex flex-col bg-gray-50">
+      {/* Header fijo */}
+      <div className="h-14 sticky top-0 z-50 bg-gray-900 text-white flex items-center justify-between px-6 shadow-md flex-shrink-0">
         <h2 className="text-xl font-bold">
           Simulador de Planificación de Procesos
         </h2>
         <div className="flex items-center gap-4">
           <ProcessControls />
           <ClockDisplay />
+          <button
+            onClick={() => setShowStats(true)}
+            className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 cursor-pointer transition"
+          >
+            Estadísticas
+          </button>
         </div>
       </div>
 
-      <div className="flex flex-row justify-between items-stretch gap-6 w-full">
-        <div className="w-1/2">
-          <FormNewProcess />
-        </div>
-        <div className="w-1/2">
-          <AlgorithmSettings />
-        </div>
-      </div>
-
-      {processes.length > 0 && (
-        <div className="space-y-6">
-          <div className="mx-6">
-            <ProcessTable />
+      {/* Contenido principal */}
+      <div className="flex-1 flex flex-col min-h-0 p-4 gap-4">
+        {/* Controles superiores - altura fija */}
+        <div className="flex gap-4 flex-shrink-0" style={{ height: "120px" }}>
+          <div className="flex-1">
+            <FormNewProcess />
           </div>
+          <div className="flex-1">
+            <AlgorithmSettings />
+          </div>
+        </div>
 
-          {currentTime > 0 && (
-            <>
-              <div className="flex flex-row gap-6 justify-between items-start overflow-x-auto">
-                <div className="flex-1 min-w-[200px]">
-                  <TableState targetState="Ready" />
-                </div>
-                <div className="flex-1 min-w-[200px]">
-                  <TableState targetState="Executing" />
-                </div>
-                <div className="flex-1 min-w-[200px]">
-                  <TableState targetState="Waiting" />
-                </div>
-                <div className="flex-1 min-w-[200px]">
-                  <TableState targetState="Terminated" />
+        {processes.length > 0 ? (
+          /* Contenido de simulación */
+          <div className="flex-1 flex flex-col min-h-0 gap-4">
+            {/* Tabla de procesos con scroll interno */}
+            <div className="flex-1 min-h-0">
+              <div className="bg-white rounded-lg shadow-sm h-full flex flex-col">
+                <h3 className="text-lg font-semibold text-gray-700 p-2 border-b flex-shrink-0">
+                  Procesos
+                </h3>
+                <div className="flex-1 overflow-auto">
+                  <ProcessTable />
                 </div>
               </div>
+            </div>
 
-              <div className="mx-6">
-                <GanttDiagram />
+            {/* Gantt Diagram - altura fija */}
+            {(currentTime > 0 || running) && (
+              <div className="flex-shrink-0" style={{ height: "150px" }}>
+                <div className="bg-white rounded-lg shadow-sm p-2 h-full">
+                  <GanttDiagram />
+                </div>
               </div>
-            </>
-          )}
-        </div>
-      )}
-      {processes.length === 0 && (
-        <div className="flex items-center justify-center h-64 mx-6">
-          <p className="text-2xl font-semibold text-gray-600 text-center">
-            No hay procesos en la simulación.
-          </p>
-        </div>
-      )}
-    </section>
+            )}
+          </div>
+        ) : (
+          /* Estado vacío */
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-6xl text-gray-300 mb-4">⚙️</div>
+              <p className="text-xl font-semibold text-gray-600">
+                No hay procesos en la simulación
+              </p>
+              <p className="text-gray-500 mt-2">
+                Agrega un proceso para comenzar
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Modal de estadísticas */}
+      <StatsModal isOpen={showStats} onClose={() => setShowStats(false)} />
+    </div>
   );
 }

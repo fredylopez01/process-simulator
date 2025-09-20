@@ -34,16 +34,13 @@ export function GanttDiagram() {
 
   // Punto inicial fijo de la simulación
   const simulationStart = new Date(2025, 0, 1, 0, 0, 0);
-  
 
   useEffect(() => {
     getCpuProcess();
     if (!cpuProcess) return;
 
     const startTime = new Date(simulationStart.getTime() + currentTime * 1000);
-    const endTime = new Date(
-      simulationStart.getTime() + (currentTime) * 1000
-    );
+    const endTime = new Date(simulationStart.getTime() + currentTime * 1000);
 
     setTimelineData((prev) => {
       if (prev.length > 1) {

@@ -1,5 +1,3 @@
-import { Listbox } from "@headlessui/react";
-import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { useSimulation } from "../../context/useSimulation";
 
 const algorithms = [
@@ -16,73 +14,63 @@ export function AlgorithmSettings() {
     setQuantum,
     intervalMs,
     setIntervalMs,
+    running,
   } = useSimulation();
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-6 mb-6 w-full h-full flex flex-col">
-      {/* Título */}
-      <h3 className="text-lg font-bold text-gray-800 border-b pb-2 mb-4">
-        Configuración de Algoritmo
+    <div className="bg-white shadow-sm rounded-lg p-4 h-full flex flex-col">
+      <h3 className="text-md font-bold text-gray-800 mb-3 border-b pb-2">
+        ⚙️ Configuración
       </h3>
 
-      {/* Controles */}
-      <div className="flex flex-wrap gap-6 items-end">
-        {/* Algoritmo */}
-        <div className="flex flex-col text-sm font-medium text-gray-600 w-40 relative">
-          Algoritmo
-          <Listbox value={algorithm} onChange={setAlgorithm}>
-            <div className="relative mt-1">
-              {/* Botón */}
-              <Listbox.Button className="relative w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-left flex justify-between items-center">
-                <span>{algorithms.find((a) => a.id === algorithm)?.label}</span>
-                <ChevronUpDownIcon className="w-5 h-5 text-gray-400" />
-              </Listbox.Button>
-
-              {/* Opciones */}
-              <Listbox.Options className="absolute mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto focus:outline-none z-10">
-                {algorithms.map((algo) => (
-                  <Listbox.Option
-                    key={algo.id}
-                    value={algo.id}
-                    className={({ active }) =>
-                      `cursor-pointer select-none px-4 py-2 ${
-                        active ? "bg-indigo-600 text-white" : "text-gray-700"
-                      }`
-                    }
-                  >
-                    {algo.label}
-                  </Listbox.Option>
-                ))}
-              </Listbox.Options>
-            </div>
-          </Listbox>
+      <div className="grid grid-cols-3 gap-3 flex-1">
+        <div className="flex flex-col">
+          <label className="text-xs font-medium text-gray-600 mb-1">
+            Algoritmo
+          </label>
+          <select
+            value={algorithm}
+            onChange={(e) => setAlgorithm(e.target.value)}
+            className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            disabled={running}
+          >
+            {algorithms.map((algo) => (
+              <option key={algo.id} value={algo.id}>
+                {algo.label}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* Quantum (solo si es RR) */}
-        {algorithm === "RR" && (
-          <label className="flex flex-col text-sm font-medium text-gray-600 w-40">
-            Quantum
-            <input
-              type="number"
-              min={1}
-              value={quantum}
-              onChange={(e) => setQuantum(Number(e.target.value))}
-              className="mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
+        <div className="flex flex-col">
+          <label className="text-xs font-medium text-gray-600 mb-1">
+            Intervalo (ms)
           </label>
-        )}
-
-        {/* Intervalo */}
-        <label className="flex flex-col text-sm font-medium text-gray-600 w-40">
-          Intervalo (ms)
           <input
             type="number"
             min={100}
             value={intervalMs}
             onChange={(e) => setIntervalMs(Number(e.target.value))}
-            className="mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            disabled={running}
           />
-        </label>
+        </div>
+
+        {algorithm === "RR" && (
+          <div className="flex flex-col">
+            <label className="text-xs font-medium text-gray-600 mb-1">
+              Quantum
+            </label>
+            <input
+              type="number"
+              min={1}
+              value={quantum}
+              onChange={(e) => setQuantum(Number(e.target.value))}
+              className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              disabled={running}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

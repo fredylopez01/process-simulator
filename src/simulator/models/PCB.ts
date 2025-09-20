@@ -3,6 +3,7 @@ export type ProcessStatus =
   | "Ready"
   | "Executing"
   | "Waiting"
+  | "WaitingIO"
   | "Terminated";
 
 export interface PCB {
