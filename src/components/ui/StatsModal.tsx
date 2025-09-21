@@ -71,7 +71,7 @@ export function StatsModal({ isOpen, onClose }: StatsModalProps) {
           <div className="bg-gray-900 px-6 py-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium text-white">
-                📊 Estadísticas de Simulación
+                📊 Simulation Statistics
               </h3>
               <button
                 onClick={onClose}
@@ -100,29 +100,29 @@ export function StatsModal({ isOpen, onClose }: StatsModalProps) {
               {/* Estadísticas Generales */}
               <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4">
                 <h4 className="text-lg font-semibold text-blue-800 mb-3">
-                  📈 Generales
+                  📈 General
                 </h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-blue-700">Algoritmo:</span>
+                    <span className="text-blue-700">Algorithm:</span>
                     <span className="font-medium text-blue-900">
                       {algorithm}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-blue-700">Tiempo Total:</span>
+                    <span className="text-blue-700">Total Time:</span>
                     <span className="font-medium text-blue-900">
                       {currentTime}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-blue-700">Total Procesos:</span>
+                    <span className="text-blue-700">Total Processes:</span>
                     <span className="font-medium text-blue-900">
                       {totalProcesses}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-blue-700">Completados:</span>
+                    <span className="text-blue-700">Completed:</span>
                     <span className="font-medium text-blue-900">
                       {completedProcesses.length}
                     </span>
@@ -133,12 +133,12 @@ export function StatsModal({ isOpen, onClose }: StatsModalProps) {
               {/* Métricas de Rendimiento */}
               <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4">
                 <h4 className="text-lg font-semibold text-green-800 mb-3">
-                  ⚡ Rendimiento
+                  ⚡ Performance
                 </h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-green-700">
-                      Tiempo Espera Promedio:
+                      Average Waiting Time:
                     </span>
                     <span className="font-medium text-green-900">
                       {avgWaitingTime.toFixed(2)}
@@ -146,14 +146,14 @@ export function StatsModal({ isOpen, onClose }: StatsModalProps) {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-green-700">
-                      Tiempo Retorno Promedio:
+                      Average Turnaround Time:
                     </span>
                     <span className="font-medium text-green-900">
                       {avgTurnaroundTime.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-green-700">Utilización CPU:</span>
+                    <span className="text-green-700">CPU Utilization:</span>
                     <span className="font-medium text-green-900">
                       {cpuUtilization.toFixed(1)}%
                     </span>
@@ -170,7 +170,7 @@ export function StatsModal({ isOpen, onClose }: StatsModalProps) {
               {/* Estados de Procesos */}
               <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4">
                 <h4 className="text-lg font-semibold text-purple-800 mb-3">
-                  🔄 Estados
+                  🔄 States
                 </h4>
                 <div className="space-y-2">
                   {Object.entries(stateStats).map(([state, count]) => (
@@ -198,32 +198,34 @@ export function StatsModal({ isOpen, onClose }: StatsModalProps) {
             {completedProcesses.length > 0 && (
               <div className="mt-6">
                 <h4 className="text-lg font-semibold text-gray-800 mb-3">
-                  📋 Detalle de Procesos Completados
+                  📋 Details of Completed Processes
                 </h4>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                          Proceso
+                          Process
                         </th>
                         <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                          Llegada
+                          Arrival T.
                         </th>
                         <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                          Burst
+                          Burst T.
                         </th>
                         <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                          Finalización
+                          Completion T.
                         </th>
                         <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                          Retorno
+                          Turnaround T. <br />
+                          CT - AT
                         </th>
                         <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                          Espera
+                          Waiting T. <br />
+                          TT - BT
                         </th>
                         <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                          Prioridad
+                          Priority
                         </th>
                       </tr>
                     </thead>

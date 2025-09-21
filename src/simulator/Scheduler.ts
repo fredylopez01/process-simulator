@@ -55,20 +55,26 @@ export class Scheduler {
 
   /** Mueve procesos que ya llegaron a la cola de listos */
   private moveArrivalsToReady(time: number) {
-    if (this.waitingQueue.length > 0) {
+    if (this.waitingQueue.length > 0 && this.readyQueue.length < 1) {
       this.waitingQueue.forEach((p) => (p.state = "Ready"));
       this.readyQueue.push(...this.waitingQueue);
       this.waitingQueue = [];
     }
 
+    // Filtrar procesos que llegan en este tiempo
+    const arrivingProcesses: PCB[] = [];
     this.createdQueue = this.createdQueue.filter((process) => {
       if (process.arrivalTime === time) {
         process.state = "Ready";
-        this.readyQueue.push(process);
+        arrivingProcesses.push(process);
         return false;
       }
       return true;
     });
+
+    // Ordenar por prioridad (menor número = mayor prioridad) antes de agregar a readyQueue
+    arrivingProcesses.sort((a, b) => a.priority - b.priority);
+    this.readyQueue.push(...arrivingProcesses);
   }
 
   /** Asigna un proceso a la CPU si está libre */
@@ -91,10 +97,6 @@ export class Scheduler {
 
     this.cpuProcess.remainingTime--;
     this.quantumCounter++;
-
-    console.log(
-      `${time}: proceso ${this.cpuProcess.id}, restante: ${this.cpuProcess.remainingTime}`
-    );
 
     if (this.cpuProcess.remainingTime <= 0) {
       this.finishProcess(time);
@@ -126,8 +128,14 @@ export class Scheduler {
   /** Saca al proceso de CPU y lo pasa a espera */
   private preemptProcess() {
     if (!this.cpuProcess) return;
-    this.cpuProcess.state = "Waiting";
-    this.waitingQueue.push(this.cpuProcess);
+    const newRandomNumber = Math.round(Math.random());
+    if (newRandomNumber < 0.5) {
+      this.cpuProcess.state = "Waiting";
+      this.waitingQueue.push(this.cpuProcess);
+    } else {
+      this.cpuProcess.state = "WaitingIO";
+      this.waitingQueue.push(this.cpuProcess);
+    }
     this.cpuProcess = null;
     this.quantumCounter = 0;
   }

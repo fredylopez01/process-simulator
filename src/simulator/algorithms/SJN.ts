@@ -1,7 +1,7 @@
 import type { PCB } from "../models/PCB";
 import type { ScheduleNextProcess } from "./ScheduleNextProcess";
 
-export class SJF implements ScheduleNextProcess {
+export class SJN implements ScheduleNextProcess {
   getNextProcess(process: PCB[]): PCB {
     let nextProcess = process[0];
     process.forEach((process) => {

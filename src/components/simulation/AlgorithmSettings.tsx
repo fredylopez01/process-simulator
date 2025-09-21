@@ -2,7 +2,7 @@ import { useSimulation } from "../../context/useSimulation";
 
 const algorithms = [
   { id: "FCFS", label: "FCFS" },
-  { id: "SJF", label: "SJF" },
+  { id: "SJN", label: "SJN" },
   { id: "RR", label: "Round Robin" },
 ];
 
@@ -20,13 +20,13 @@ export function AlgorithmSettings() {
   return (
     <div className="bg-white shadow-sm rounded-lg p-4 h-full flex flex-col">
       <h3 className="text-md font-bold text-gray-800 mb-3 border-b pb-2">
-        ⚙️ Configuración
+        ⚙️ Configuration
       </h3>
 
       <div className="grid grid-cols-3 gap-3 flex-1">
         <div className="flex flex-col">
           <label className="text-xs font-medium text-gray-600 mb-1">
-            Algoritmo
+            Algorithm
           </label>
           <select
             value={algorithm}
@@ -44,7 +44,7 @@ export function AlgorithmSettings() {
 
         <div className="flex flex-col">
           <label className="text-xs font-medium text-gray-600 mb-1">
-            Intervalo (ms)
+            Interval (ms)
           </label>
           <input
             type="number"

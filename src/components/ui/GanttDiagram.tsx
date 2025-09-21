@@ -72,9 +72,7 @@ export function GanttDiagram() {
 
   return (
     <>
-      <h3 className="text-lg font-semibold text-gray-700 mb-4">
-        Diagrama de Gantt
-      </h3>
+      <h3 className="text-lg font-semibold text-gray-700 mb-4">Gantt chart</h3>
       <Chart
         chartType="Timeline"
         data={timelineData}

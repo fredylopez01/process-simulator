@@ -2,6 +2,7 @@ import { createContext } from "react";
 import type { PCB } from "../simulator/models/PCB";
 
 export type SimulationContextType = {
+  totalTime: number;
   currentTime: number;
   running: boolean;
   processes: PCB[];
@@ -20,6 +21,6 @@ export type SimulationContextType = {
 };
 
 // Contexto vacío (se llena en el Provider)
-export const SimulationContext = createContext<SimulationContextType | undefined>(
-  undefined
-);
+export const SimulationContext = createContext<
+  SimulationContextType | undefined
+>(undefined);

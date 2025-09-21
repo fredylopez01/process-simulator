@@ -2,7 +2,8 @@ import { useSimulation } from "../../context/useSimulation";
 import type { PCB } from "../../simulator/models/PCB";
 
 export function ProcessTable() {
-  const { processes, deleteProcess, running } = useSimulation();
+  const { processes, deleteProcess, running, currentTime, totalTime } =
+    useSimulation();
 
   const getStateColor = (state: string) => {
     const colors: Record<string, string> = {
@@ -31,22 +32,22 @@ export function ProcessTable() {
               ID
             </th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Arrival
+              Arrival Time
             </th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Burst
+              Burst Time
             </th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Remaining
+              Remaining Time
             </th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Priority
             </th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-80">
-              Estado y Progreso
+              State and progress
             </th>
             <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-30">
-              Acciones
+              Actions
             </th>
           </tr>
         </thead>
@@ -98,10 +99,15 @@ export function ProcessTable() {
                   <td className="px-4 py-3">
                     <button
                       onClick={() => deleteProcess(process.id)}
-                      disabled={running}
-                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded cursor-pointer transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={
+                        (currentTime > 0 &&
+                          currentTime != totalTime &&
+                          !running) ||
+                        running
+                      }
+                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md cursor-pointer transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Eliminar
+                      Delete
                     </button>
                   </td>
                 </tr>

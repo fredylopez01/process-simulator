@@ -16,9 +16,7 @@ export function SimulationSection() {
     <div className=" flex flex-col bg-gray-50">
       {/* Header fijo */}
       <div className="h-14 sticky top-0 z-50 bg-gray-900 text-white flex items-center justify-between px-6 shadow-md flex-shrink-0">
-        <h2 className="text-xl font-bold">
-          Simulador de Planificación de Procesos
-        </h2>
+        <h2 className="text-xl font-bold">Process Manager Simulator</h2>
         <div className="flex items-center gap-4">
           <ProcessControls />
           <ClockDisplay />
@@ -26,7 +24,7 @@ export function SimulationSection() {
             onClick={() => setShowStats(true)}
             className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 cursor-pointer transition"
           >
-            Estadísticas
+            Statistics
           </button>
         </div>
       </div>
@@ -50,7 +48,7 @@ export function SimulationSection() {
             <div className="flex-1 min-h-0">
               <div className="bg-white rounded-lg shadow-sm h-full flex flex-col">
                 <h3 className="text-lg font-semibold text-gray-700 p-2 border-b flex-shrink-0">
-                  Procesos
+                  Processes
                 </h3>
                 <div className="flex-1 overflow-auto">
                   <ProcessTable />
@@ -69,15 +67,13 @@ export function SimulationSection() {
           </div>
         ) : (
           /* Estado vacío */
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center p-6">
             <div className="text-center">
               <div className="text-6xl text-gray-300 mb-4">⚙️</div>
               <p className="text-xl font-semibold text-gray-600">
-                No hay procesos en la simulación
+                There are no processes in the simulation
               </p>
-              <p className="text-gray-500 mt-2">
-                Agrega un proceso para comenzar
-              </p>
+              <p className="text-gray-500 mt-2">Add a process to start</p>
             </div>
           </div>
         )}

@@ -10,14 +10,14 @@ export function ProcessControls() {
         disabled={running}
         className="px-3 py-1 text-sm bg-green-600 text-white rounded-md shadow hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
       >
-        Iniciar
+        ▷ Start
       </button>
 
       <button
         onClick={reset}
         className="px-3 py-1 text-sm border border-red-600 text-red-600 rounded-md shadow hover:bg-red-50 transition cursor-pointer"
       >
-        Resetear
+        ⟲ Reset
       </button>
     </div>
   );

@@ -3,7 +3,8 @@ import { useSimulation } from "../../context/useSimulation";
 
 // Componente FormNewProcess compacto
 export function FormNewProcess() {
-  const { addProcessListener, running } = useSimulation();
+  const { addProcessListener, running, currentTime, totalTime } =
+    useSimulation();
   const [arrivalTime, setArrivalTime] = useState(0);
   const [burstTime, setBurstTime] = useState(1);
   const [priority, setPriority] = useState(1);
@@ -25,7 +26,7 @@ export function FormNewProcess() {
   return (
     <div className="bg-white shadow-sm rounded-lg p-4 h-full flex flex-col">
       <h3 className="text-md font-bold text-gray-800 mb-3 border-b pb-2">
-        ➕ Nuevo Proceso
+        ➕ New Process
       </h3>
 
       <div className="grid grid-cols-4 gap-3 flex-1">
@@ -74,9 +75,11 @@ export function FormNewProcess() {
         <button
           onClick={handleSubmit}
           className="mt-3 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-          disabled={running}
+          disabled={
+            (currentTime > 0 && currentTime != totalTime && !running) || running
+          }
         >
-          Agregar Proceso
+          Add process
         </button>
       </div>
     </div>

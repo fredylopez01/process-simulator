@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Scheduler } from "../simulator/Scheduler";
 import { Clock } from "../simulator/Clock";
 import { FCFS } from "../simulator/algorithms/FCFS";
-import { SJF } from "../simulator/algorithms/SJF";
+import { SJN } from "../simulator/algorithms/SJN";
 import { RoundRobin } from "../simulator/algorithms/RoundRobin";
 import { SimulationContext } from "./SimulationContext";
 import type { PCB } from "../simulator/models/PCB";
@@ -10,6 +10,7 @@ import type { PCB } from "../simulator/models/PCB";
 export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const [totalTime, setTotalTime] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [algorithm, setAlgorithm] = useState("RR");
   const [quantum, setQuantum] = useState(4);
@@ -25,21 +26,14 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Configura el reloj
   useEffect(() => {
-  clockRef.current = new Clock((time) => {
-    console.log(`=== CLOCK TICK ${time} ===`);
-      console.log("Processes before tick:", schedulerRef.current?.getAllProcesses());
-    
-    schedulerRef.current?.tick(time);
-    const updatedProcesses = schedulerRef.current?.getAllProcesses() ?? [];
-    
-    console.log("Processes after tick:", updatedProcesses);
-      console.log("States:", updatedProcesses.map(p => `P${p.id}: ${p.state}`));
-      
-    
-    setProcesses(updatedProcesses);
-    setCurrentTime(time);
-  }, intervalMs);
-}, [intervalMs]);
+    clockRef.current = new Clock((time) => {
+      schedulerRef.current?.tick(time);
+      const updatedProcesses = schedulerRef.current?.getAllProcesses() ?? [];
+
+      setProcesses(updatedProcesses);
+      setCurrentTime(time);
+    }, intervalMs);
+  }, [intervalMs]);
 
   const addProcessListener = (
     process: Omit<PCB, "id" | "remainingTime" | "state">
@@ -62,6 +56,7 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({
         state: "Created",
       },
     ]);
+    setTotalTime(totalTime + process.burstTime);
     setProcessesCounter(processesCounter + 1);
   };
 
@@ -73,7 +68,7 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({
   const createScheduler = (procs: PCB[]) => {
     let algoInstance;
     if (algorithm === "FCFS") algoInstance = new FCFS();
-    else if (algorithm === "SJF") algoInstance = new SJF();
+    else if (algorithm === "SJN") algoInstance = new SJN();
     else algoInstance = new RoundRobin(quantum);
 
     const cloned = procs.map((p) => ({ ...p }));
@@ -88,8 +83,6 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const start = () => {
     if (!running && initial_processes.length > 0) {
-      console.log("=== STARTING SIMULATION ===");
-      console.log("Initial processes:", initial_processes);
       reset();
       // reinicia con los procesos originales
       setProcesses(initial_processes);
@@ -118,6 +111,7 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <SimulationContext.Provider
       value={{
+        totalTime,
         currentTime,
         running,
         processes,
