@@ -23,12 +23,10 @@ export function StatsModal({ isOpen, onClose }: StatsModalProps) {
       ? completedProcesses.reduce((sum, p) => sum + p.waitingTime, 0) /
         completedProcesses.length
       : 0;
-  const cpuUtilization =
-    currentTime > 0
-      ? ((currentTime - processes.filter((p) => p.state === "Ready").length) /
-          currentTime) *
-        100
-      : 0;
+  const totalBurst = processes.reduce((sum, p) => sum + p.burstTime, 0);
+  const cpuUtilization = currentTime > 0 
+  ? (totalBurst / currentTime) * 100 
+  : 0;
   const throughput =
     currentTime > 0 ? completedProcesses.length / currentTime : 0;
 

@@ -18,41 +18,46 @@ Por el momento la estructura de carpetas que se piensan trabajar es la siguiente
 
 ```bash
 /process-simulator
+/process-simulator
 │── package.json
 │── tsconfig.json
 │── vite.config.ts
 │── src/
-│   │── main.tsx            # Punto de entrada
-│   │── App.tsx             # Layout principal
+│   │── main.tsx                  # Punto de entrada de la app
+│   │── App.tsx                   # Layout principal
 │   │
-│   ├── components/         # Todo lo visual (UI/UX)
-│   │   ├── ProcessForm.tsx # Formulario para agregar procesos
-│   │   ├── QueueView.tsx   # Visualización de colas (ready, waiting, running, terminated)
-│   │   ├── GanttChart.tsx  # Gráfico de ejecución
-│   │   ├── Controls.tsx    # Botones de iniciar/pausar/reiniciar, elegir algoritmo
-│   │   └── Metrics.tsx     # KPIs: tiempo de espera, turnaround, etc.
+│   ├── components/               # Componentes de UI
+│   │   ├── simulation/           # Módulos principales de la simulación
+│   │   │   ├── AlgorithmSettings.tsx   # Configuración del algoritmo (FCFS, SJF, RR)
+│   │   │   ├── ClockDisplay.tsx        # Reloj virtual de la simulación
+│   │   │   ├── FormNewProcess.tsx      # Formulario para crear nuevos procesos
+│   │   │   ├── ProcessControls.tsx     # Controles: iniciar, pausar, reanudar, resetear
+│   │   │   ├── ProcessTable.tsx        # Tabla con información completa de los procesos
+│   │   │   ├── SimulationResults.tsx   # Resultados y métricas de la simulación
+│   │   │   └── SimulationSection.tsx   # Contenedor principal de la simulación
+│   │   │
+│   │   ├── ui/                   # Subcomponentes reutilizables
+│   │   │   ├── GanttDiagram.tsx        # Diagrama de Gantt (timeline de ejecución)
+│   │   │   ├── TableRow.tsx            # Fila de proceso para la tabla
+│   │   │   └── TableState.tsx          # Tabla por estado (Ready, Executing, Waiting, Terminated)
 │   │
-│   ├── simulator/          # Lógica del "mini S.O."
-│   │   ├── models/
-│   │   │   └── PCB.ts      # Definición de la interfaz PCB
-│   │   ├── algorithms/
-│   │   │   ├── fcfs.ts     # Implementación de FCFS
-│   │   │   ├── sjf.ts      # Implementación de SJF
-│   │   │   └── roundRobin.ts # Implementación de RR
-│   │   ├── Scheduler.ts    # Clase/funciones para coordinar los algoritmos
-│   │   └── Clock.ts        # Reloj virtual (simulación del tiempo)
+│   ├── context/                  # Manejo de estado global
+│   │   ├── SimulationContext.tsx      # Definición del contexto
+│   │   ├── SimulationProvider.tsx     # Proveedor del contexto (lógica principal)
+│   │   └── useSimulation.tsx          # Hook personalizado para usar el contexto
 │   │
-│   ├── hooks/
-│   │   └── useSimulator.ts # Hook para conectar la lógica con los componentes
-│   │
-│   ├── context/
-│   │   └── SimulatorContext.tsx # Contexto global para manejar el estado
-│   │
-│   ├── styles/             # Estilos
-│   │   └── globals.css
-│   │
-│   └── utils/
-│       └── helpers.ts      # Funciones auxiliares (random IDs, formateo, etc.)
+│   ├── simulator/                # Núcleo de la lógica del planificador
+│   │   ├── algorithms/                 # Implementaciones de algoritmos
+│   │   │   ├── FCFS.ts                 # Algoritmo First Come First Serve
+│   │   │   ├── RoundRobin.ts           # Algoritmo Round Robin
+│   │   │   ├── SJF.ts                  # Algoritmo Shortest Job First
+│   │   │   └── ScheduleNextProcess.ts  # Utilidad para seleccionar el siguiente proceso
+│   │   ├── models/                     # Modelos de datos
+│   │   │   └── PCB.ts                  # Proceso Control Block (estructura de proceso)
+│   │   ├── Scheduler.ts                # Coordinador de la ejecución de procesos
+│   │   └── Clock.ts                    # Reloj virtual que avanza el tiempo
+│
+│── public/                      # Archivos estáticos
 
 ```
 
