@@ -6,7 +6,7 @@ interface StatsModalProps {
 }
 
 export function StatsModal({ isOpen, onClose }: StatsModalProps) {
-  const { processes, currentTime, algorithm } = useSimulation();
+  const { processes, currentTime, algorithm, quantum } = useSimulation();
 
   if (!isOpen) return null;
 
@@ -17,6 +17,13 @@ export function StatsModal({ isOpen, onClose }: StatsModalProps) {
     completedProcesses.length > 0
       ? completedProcesses.reduce((sum, p) => sum + p.turnaroundTime, 0) /
         completedProcesses.length
+      : 0;
+  const avgNormalizedTurnaroundTime =
+    completedProcesses.length > 0
+      ? completedProcesses.reduce(
+          (sum, p) => sum + p.turnaroundTime / p.burstTime,
+          0
+        ) / completedProcesses.length
       : 0;
   const avgWaitingTime =
     completedProcesses.length > 0
@@ -133,31 +140,37 @@ export function StatsModal({ isOpen, onClose }: StatsModalProps) {
                 </h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-green-700">
-                      Average Waiting Time:
-                    </span>
+                    <span className="text-green-700">Average Waiting T.:</span>
                     <span className="font-medium text-green-900">
-                      {avgWaitingTime.toFixed(2)}
+                      {avgWaitingTime.toFixed(4)}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-green-700">
-                      Average Turnaround Time:
+                      Average Turnaround T.:
                     </span>
                     <span className="font-medium text-green-900">
-                      {avgTurnaroundTime.toFixed(2)}
+                      {avgTurnaroundTime.toFixed(4)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-green-700">
+                      Average Normalized T. T.:
+                    </span>
+                    <span className="font-medium text-green-900">
+                      {avgNormalizedTurnaroundTime.toFixed(4)}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-green-700">CPU Utilization:</span>
                     <span className="font-medium text-green-900">
-                      {cpuUtilization.toFixed(1)}%
+                      {cpuUtilization.toFixed(2)}%
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-green-700">Throughput:</span>
                     <span className="font-medium text-green-900">
-                      {throughput.toFixed(3)}
+                      {throughput.toFixed(4)}
                     </span>
                   </div>
                 </div>
@@ -220,9 +233,18 @@ export function StatsModal({ isOpen, onClose }: StatsModalProps) {
                           CT - AT
                         </th>
                         <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                          Normalized T. T. <br />
+                          TT/BT
+                        </th>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                           Waiting T. <br />
                           TT - BT
                         </th>
+                        {algorithm === "RR" && (
+                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                            C.C.
+                          </th>
+                        )}
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -247,8 +269,16 @@ export function StatsModal({ isOpen, onClose }: StatsModalProps) {
                             {process.turnaroundTime}
                           </td>
                           <td className="px-3 py-2 text-sm text-gray-500">
+                            {process.turnaroundTime / process.burstTime}
+                          </td>
+                          <td className="px-3 py-2 text-sm text-gray-500">
                             {process.waitingTime}
                           </td>
+                          {algorithm === "RR" && (
+                            <td className="px-3 py-2 text-sm text-gray-500">
+                              {Math.ceil(process.burstTime / quantum)}
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>

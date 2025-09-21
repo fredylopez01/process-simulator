@@ -33,13 +33,15 @@ Por el momento la estructura de carpetas que se piensan trabajar es la siguiente
 │   │   │   ├── FormNewProcess.tsx      # Formulario para crear nuevos procesos
 │   │   │   ├── ProcessControls.tsx     # Controles: iniciar, pausar, reanudar, resetear
 │   │   │   ├── ProcessTable.tsx        # Tabla con información completa de los procesos
-│   │   │   ├── SimulationResults.tsx   # Resultados y métricas de la simulación
-│   │   │   └── SimulationSection.tsx   # Contenedor principal de la simulación
+│   │   │   └── SimulationResults.tsx   # Resultados y métricas de la simulación
 │   │   │
 │   │   ├── ui/                   # Subcomponentes reutilizables
-│   │   │   ├── GanttDiagram.tsx        # Diagrama de Gantt (timeline de ejecución)
-│   │   │   ├── TableRow.tsx            # Fila de proceso para la tabla
-│   │   │   └── TableState.tsx          # Tabla por estado (Ready, Executing, Waiting, Terminated)
+│   │   │   ├── GanttDiagram.tsx               # Diagrama de Gantt (timeline de ejecución)
+│   │   │   ├── ProcessTurnVisualization.tsx   # Visaulización de turnos y proceso en la CPU
+│   │   │   ├── QueueVisualization.tsx         # Visualización de estado de las colas
+│   │   │   └── StatsModal.tsx                 # Estadísticas de los procesos ejecutados
+│   │   │
+│   │   └── SimulationSection.tsx   # Contenedor principal de la simulación
 │   │
 │   ├── context/                  # Manejo de estado global
 │   │   ├── SimulationContext.tsx      # Definición del contexto
@@ -50,7 +52,7 @@ Por el momento la estructura de carpetas que se piensan trabajar es la siguiente
 │   │   ├── algorithms/                 # Implementaciones de algoritmos
 │   │   │   ├── FCFS.ts                 # Algoritmo First Come First Serve
 │   │   │   ├── RoundRobin.ts           # Algoritmo Round Robin
-│   │   │   ├── SJF.ts                  # Algoritmo Shortest Job First
+│   │   │   ├── SJN.ts                  # Algoritmo Shortest Job Next
 │   │   │   └── ScheduleNextProcess.ts  # Utilidad para seleccionar el siguiente proceso
 │   │   ├── models/                     # Modelos de datos
 │   │   │   └── PCB.ts                  # Proceso Control Block (estructura de proceso)

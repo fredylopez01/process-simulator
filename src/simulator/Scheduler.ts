@@ -38,21 +38,6 @@ export class Scheduler {
     this.checkIfFinished();
   }
 
-  /** Devuelve snapshot de todos los procesos */
-  public getAllProcesses(): PCB[] {
-    return [
-      ...this.createdQueue,
-      ...this.readyQueue,
-      ...this.waitingQueue,
-      ...(this.cpuProcess ? [this.cpuProcess] : []),
-      ...this.terminatedQueue,
-    ];
-  }
-
-  public getTerminatedProcesses(): PCB[] {
-    return this.terminatedQueue;
-  }
-
   /** Mueve procesos que ya llegaron a la cola de listos */
   private moveArrivalsToReady(time: number) {
     if (this.waitingQueue.length > 0 && this.readyQueue.length < 1) {
@@ -159,5 +144,20 @@ export class Scheduler {
       p.waitingTime = p.turnaroundTime - p.burstTime;
       p.normalizedTurnaroundTime = p.turnaroundTime / p.burstTime;
     });
+  }
+
+  /** Devuelve snapshot de todos los procesos */
+  public getAllProcesses(): PCB[] {
+    return [
+      ...this.createdQueue,
+      ...this.readyQueue,
+      ...this.waitingQueue,
+      ...(this.cpuProcess ? [this.cpuProcess] : []),
+      ...this.terminatedQueue,
+    ];
+  }
+
+  public getTerminatedProcesses(): PCB[] {
+    return this.terminatedQueue;
   }
 }
