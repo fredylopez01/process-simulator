@@ -24,9 +24,7 @@ export function StatsModal({ isOpen, onClose }: StatsModalProps) {
         completedProcesses.length
       : 0;
   const totalBurst = processes.reduce((sum, p) => sum + p.burstTime, 0);
-  const cpuUtilization = currentTime > 0 
-  ? (totalBurst / currentTime) * 100 
-  : 0;
+  const cpuUtilization = currentTime > 0 ? (totalBurst / currentTime) * 100 : 0;
   const throughput =
     currentTime > 0 ? completedProcesses.length / currentTime : 0;
 
@@ -206,6 +204,9 @@ export function StatsModal({ isOpen, onClose }: StatsModalProps) {
                           Process
                         </th>
                         <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                          Priority
+                        </th>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                           Arrival T.
                         </th>
                         <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
@@ -222,9 +223,6 @@ export function StatsModal({ isOpen, onClose }: StatsModalProps) {
                           Waiting T. <br />
                           TT - BT
                         </th>
-                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                          Priority
-                        </th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -232,6 +230,9 @@ export function StatsModal({ isOpen, onClose }: StatsModalProps) {
                         <tr key={process.id} className="hover:bg-gray-50">
                           <td className="px-3 py-2 text-sm font-medium text-gray-900">
                             P{process.id}
+                          </td>
+                          <td className="px-3 py-2 text-sm text-gray-500">
+                            {process.priority}
                           </td>
                           <td className="px-3 py-2 text-sm text-gray-500">
                             {process.arrivalTime}
@@ -247,9 +248,6 @@ export function StatsModal({ isOpen, onClose }: StatsModalProps) {
                           </td>
                           <td className="px-3 py-2 text-sm text-gray-500">
                             {process.waitingTime}
-                          </td>
-                          <td className="px-3 py-2 text-sm text-gray-500">
-                            {process.priority}
                           </td>
                         </tr>
                       ))}

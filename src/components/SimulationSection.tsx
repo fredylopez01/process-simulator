@@ -7,6 +7,8 @@ import { StatsModal } from "./ui/StatsModal";
 import { FormNewProcess } from "./simulation/FormNewProcess";
 import { AlgorithmSettings } from "./simulation/AlgorithmSettings";
 import { ProcessTable } from "./simulation/ProcessTable";
+import { QueueVisualization } from "./ui/QueueVisualization";
+import { ProcessTurnVisualization } from "./ui/ProcessTurnVisualization";
 
 export function SimulationSection() {
   const { processes, currentTime, running } = useSimulation();
@@ -58,9 +60,18 @@ export function SimulationSection() {
 
             {/* Gantt Diagram - altura fija */}
             {(currentTime > 0 || running) && (
-              <div className="flex-shrink-0" style={{ height: "150px" }}>
+              <div className="flex-shrink-0">
                 <div className="bg-white rounded-lg shadow-sm p-2 h-full">
                   <GanttDiagram />
+                </div>
+
+                {/* Colas de Planificación */}
+                <div className="flex-shrink-0">
+                  <QueueVisualization />
+                </div>
+                {/* Turno de Procesos */}
+                <div className="flex-shrink-0">
+                  <ProcessTurnVisualization />
                 </div>
               </div>
             )}
